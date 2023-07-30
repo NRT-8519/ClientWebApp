@@ -12,6 +12,8 @@ namespace ClientWebApp.AuthProviders
         private readonly ILocalStorageService localStorage;
         private readonly AuthenticationState anonymous;
 
+
+
         public AuthStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
         {
             this.httpClient = httpClient;
@@ -33,10 +35,11 @@ namespace ClientWebApp.AuthProviders
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(token), "jwtAuthType"))); ;
         }
 
-        public void NotifyUserAuthentication(string username)
+        public void NotifyUserAuthentication(string token)
         {
-            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, username) }, "jwtAuthType"));
+            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(token), "jwtAuthType"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+
             NotifyAuthenticationStateChanged(authState);
         }
 
