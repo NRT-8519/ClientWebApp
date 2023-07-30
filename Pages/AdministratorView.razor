@@ -1,0 +1,19 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization
+
+@attribute [Authorize(Roles = "ADMINISTRATOR")]
+@page "/admin_dashboard"
+
+<PageTitle>Administrator Dashboard</PageTitle>
+
+<AuthorizeView Roles="ADMINISTRATOR">
+    <Authorized>
+        <h3>Authorized!</h3>
+    </Authorized>
+    <NotAuthorized>
+        <h3>You are not authorized to access this page!</h3>
+    </NotAuthorized>
+</AuthorizeView>
+@code {
+
+}
