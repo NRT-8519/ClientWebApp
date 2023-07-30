@@ -14,6 +14,8 @@ namespace ClientWebApp.Features
 
             var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
+            ExtractRoleFromJWT(claims, keyValuePairs);
+
             claims.AddRange(keyValuePairs.Select(pair => new Claim(pair.Key, pair.Value.ToString())));
 
             return claims;
@@ -27,6 +29,18 @@ namespace ClientWebApp.Features
                 case 3: base64 += "="; break;
             }
             return Convert.FromBase64String(base64);
+        }
+
+        private static void ExtractRoleFromJWT(List<Claim> claims, Dictionary<string, object> pairs)
+        {
+            pairs.TryGetValue("role", out var role);
+
+            if (role != null)
+            {
+                Console.WriteLine(role.ToString());
+                claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+                pairs.Remove(ClaimTypes.Role);
+            }
         }
     }
 
