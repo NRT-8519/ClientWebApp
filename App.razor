@@ -1,4 +1,7 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using ClientWebApp.Services;
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject IAuthenticationService service
 
 <CascadingAuthenticationState>
         <Router AppAssembly="@typeof(App).Assembly">
@@ -14,3 +17,11 @@
             </NotFound>
         </Router>
 </CascadingAuthenticationState>
+
+@code {
+    protected async override Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        service.KeepSession();
+    }
+}

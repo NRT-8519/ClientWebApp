@@ -14,11 +14,15 @@
     </AuthorizeView>
 
     <main>
-        <div class="top-row px-4">
-            <AuthLinks />
-        </div>
+        <AuthorizeView>
+            <Authorized>
+                <div class="top-row px-4">
+                    <AuthLinks />
+                </div>
+            </Authorized>
+        </AuthorizeView>
 
-        <article class="content px-4">
+        <article class="px-4">
             @Body
         </article>
     </main>

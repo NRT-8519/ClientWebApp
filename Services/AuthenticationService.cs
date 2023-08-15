@@ -2,6 +2,7 @@
 using ClientWebApp.Auth;
 using ClientWebApp.AuthProviders;
 using ClientWebApp.Features;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Data;
 using System.Net.Http.Headers;
@@ -13,18 +14,24 @@ namespace ClientWebApp.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
+        public NavigationManager navigationManager;
+
         private readonly HttpClient client;
         private readonly JsonSerializerOptions options;
         private readonly AuthenticationStateProvider authProvider;
         private readonly ILocalStorageService localStorage;
         private bool IsLoggedIn = false;
+        private bool KeepingSession;
 
-        public AuthenticationService(HttpClient client, AuthenticationStateProvider authProvider, ILocalStorageService localStorage)
+        
+
+        public AuthenticationService(HttpClient client, AuthenticationStateProvider authProvider, ILocalStorageService localStorage, NavigationManager navigationManager)
         {
             this.client = client;
             this.authProvider = authProvider;
             this.localStorage = localStorage;
             this.options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            this.navigationManager = navigationManager;
         }
 
         public async Task<AuthResponse> Login(UserAuth userAuth)
@@ -45,7 +52,11 @@ namespace ClientWebApp.Services
             await localStorage.SetItemAsync("token", result.Token);
 
             IsLoggedIn = true;
-            KeepSession();
+            
+            if (!KeepingSession)
+            {
+                KeepSession();
+            }
 
             ((AuthStateProvider) authProvider).NotifyUserAuthentication(result.Token);
 
@@ -61,9 +72,14 @@ namespace ClientWebApp.Services
             client.DefaultRequestHeaders.Authorization = null;
         }
 
-        private async void KeepSession()
+        public async void KeepSession()
         {
+            KeepingSession = true;
             var token = await localStorage.GetItemAsStringAsync("token");
+            if (token != null && !token.Equals("") && !token.Equals("invalid_token"))
+            {
+                IsLoggedIn = true;
+            }
             Console.Write(token.ToString().Trim('"'));
             while (IsLoggedIn)
             {
@@ -76,10 +92,13 @@ namespace ClientWebApp.Services
                 if (!isExpired)
                 {
                     await Logout();
+                    navigationManager.NavigateTo("/login");
+                    KeepingSession = false;
                     break;
                 }
 
-                await Task.Delay(60 * 1000);
+                //await Task.Delay(60 * 1000);
+                await Task.Delay(10 * 1000);
             }
         }
     }

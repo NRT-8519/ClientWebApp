@@ -6,5 +6,6 @@ namespace ClientWebApp.Services
     {
         Task<AuthResponse> Login(UserAuth userAuth);
         Task Logout();
+        void KeepSession();
     }
 }

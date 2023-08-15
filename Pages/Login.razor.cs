@@ -6,7 +6,7 @@ namespace ClientWebApp.Pages
 {
     public partial class Login
     {
-        private UserAuth userAuth = new UserAuth();
+        private UserAuth userAuth = new UserAuth { Username = "", Password = ""};
 
         [Inject]
         public IAuthenticationService AuthenticationService { get; set; }
@@ -15,21 +15,34 @@ namespace ClientWebApp.Pages
         public NavigationManager NavigationManager { get; set; }
 
         public bool ShowAuthError {  get; set; }
+        public bool IsDisabled { get; set; } = false;
         public string Error { get; set; }
 
         public async Task ExecuteLogin()
         {
             ShowAuthError = false;
-
-            var result = await AuthenticationService.Login(userAuth);
-            if (!result.IsAuthSuccessful)
+            if ((!userAuth.Username.Equals("") && !userAuth.Password.Equals("")))
             {
-                Error = result.ErrorMessage;
-                ShowAuthError = true;
+                IsDisabled = true;
+
+                await Task.Delay(3000);
+                var result = await AuthenticationService.Login(userAuth);
+                if (!result.IsAuthSuccessful)
+                {
+                    Error = result.ErrorMessage;
+                    ShowAuthError = true;
+                }
+                else
+                {
+                    ShowAuthError = false;
+                    NavigationManager.NavigateTo("/");
+                }
+                IsDisabled = false;
             }
             else
             {
-                NavigationManager.NavigateTo("/");
+                Error = "Please fill in the username and password fields!";
+                ShowAuthError = true;
             }
         }
     }
