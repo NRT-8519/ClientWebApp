@@ -79,26 +79,31 @@ namespace ClientWebApp.Services
             if (token != null && !token.Equals("") && !token.Equals("invalid_token"))
             {
                 IsLoggedIn = true;
-            }
-            Console.Write(token.ToString().Trim('"'));
-            while (IsLoggedIn)
-            {
-                var authResult = await client.GetAsync("api/users/validate?token=" + token.ToString().Trim('"'));
 
-                var result = await authResult.Content.ReadAsStringAsync();
-
-                bool.TryParse(result, out bool isExpired);
-
-                if (!isExpired)
+                while (IsLoggedIn)
                 {
-                    await Logout();
-                    navigationManager.NavigateTo("/login");
-                    KeepingSession = false;
-                    break;
-                }
+                    var authResult = await client.GetAsync("api/users/validate?token=" + token.ToString().Trim('"'));
 
-                //await Task.Delay(60 * 1000);
-                await Task.Delay(10 * 1000);
+                    var result = await authResult.Content.ReadAsStringAsync();
+
+                    bool.TryParse(result, out bool isExpired);
+
+                    if (!isExpired)
+                    {
+                        await Logout();
+                        navigationManager.NavigateTo("/login");
+                        KeepingSession = false;
+                        break;
+                    }
+
+                    //await Task.Delay(60 * 1000);
+                    await Task.Delay(10 * 1000);
+                }
+            }
+            else
+            {
+                navigationManager.NavigateTo("/login");
+                KeepingSession = false;
             }
         }
     }
