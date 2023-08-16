@@ -1,0 +1,32 @@
+﻿@using ClientWebApp.DTOs;
+<div class="container">
+    <table class="table col-12">
+        <thead>
+            <tr>
+                <th scope="col" class="col-1">#</th>
+                <th scope="col" class="col-3">Name</th>
+                <th scope="col" class="col-2">Assigned doctor</th>
+                <th scope="col" class="col-4">UUID</th>
+                <th scope="col" class="col-1"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Patients.Length; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@(Patients[i].FirstName + " " + Patients[i].MiddleName.First() + ". " + Patients[i].LastName)</td>
+                    <td>@(Patients[i].AssignedDoctor)</td>
+                    <td>@(Patients[i].UUID.ToString())</td>
+                    <td><a href="patient_details" class="btn btn-sm btn-outline-success w-100">Details</a></td>
+                </tr>
+            }
+            <tr></tr>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter]
+    public PatientBasicDTO[] Patients { get; set; }
+}

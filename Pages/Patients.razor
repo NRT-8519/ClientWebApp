@@ -1,0 +1,30 @@
+﻿@page "/patients"
+@using ClientWebApp.Components
+@using ClientWebApp.DTOs;
+
+@inject HttpClient Client
+
+<PageTitle>Patients - Admin</PageTitle>
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4">Patients</h1>
+
+    @if (patients == null || patients.Length == 0)
+    {
+        <SpinnerLoader/>
+    }
+    else
+    {
+        <PatientsTable Patients="patients"/>
+    }
+</div>
+
+@code {
+    private PatientBasicDTO[]? patients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //var result = await Client.GetAsync("api/users/patients/all/basic");
+        patients = await Client.GetFromJsonAsync<PatientBasicDTO[]>("api/users/patients/all/basic");
+    }
+}
