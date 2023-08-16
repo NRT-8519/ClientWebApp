@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Authorization;
+﻿@using ClientWebApp.Components
+@using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Components.Authorization
 
 @attribute [Authorize(Roles = "ADMINISTRATOR")]
@@ -12,29 +13,20 @@
             <p class="display-4">Administrator dashboard</p>
             <div class="container col-12">
                 <div class="row align-items-center justify-content-center m-3">
+                    <AdminLinksCard Title="Users" FirstLink="Patients" SecondLink="Doctors" ThirdLink="Administrators"/>
+                </div>
+            </div>
+            <div class="container col-12">
+                <div class="row align-items-center justify-content-center m-3">
                     <div class="card card-body bg-light text-center">
-                        <h4>Users</h4>
-                        <a class="btn btn-lg btn-outline-primary m-2"><div>Patients</div></a>
-                        <a class="btn btn-lg btn-outline-primary m-2"><div>Doctors</div></a>
-                        <a class="btn btn-lg btn-outline-primary m-2"><div>Administrators</div></a>
+                        <AdminLinksCard Title="Medicine" FirstLink="Medicines" SecondLink="Issuers" ThirdLink="Companies" />
                     </div>
                 </div>
             </div>
             <div class="container col-12">
                 <div class="row align-items-center justify-content-center m-3">
                     <div class="card card-body bg-light text-center">
-                        <h4>Medicine</h4>
-                        <a class="btn btn-lg btn-outline-primary m-2"><div>Medicines</div></a>
-                        <a class="btn btn-lg btn-outline-primary m-2"><div>Issuers</div></a>
-                        <a class="btn btn-lg btn-outline-primary m-2"><div>Companies</div></a>
-                    </div>
-                </div>
-            </div>
-            <div class="container col-12">
-                <div class="row align-items-center justify-content-center m-3">
-                    <div class="card card-body bg-light text-center">
-                        <h4>Service status</h4>
-
+                        <ServiceStatusCard/>
                     </div>
                 </div>
             </div>

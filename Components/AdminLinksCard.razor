@@ -1,0 +1,20 @@
+﻿<div class="card card-body bg-light text-center">
+    <h4>@Title</h4>
+    <a href="@(FirstLink.ToLower())" class="btn btn-lg btn-outline-primary m-2"><div>@FirstLink</div></a>
+    <a href="@(SecondLink.ToLower())" class="btn btn-lg btn-outline-primary m-2"><div>@SecondLink</div></a>
+    <a href="@(ThirdLink.ToLower())" class="btn btn-lg btn-outline-primary m-2"><div>@ThirdLink</div></a>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Default title";
+
+    [Parameter]
+    public string FirstLink { get; set; } = "First";
+
+    [Parameter]
+    public string SecondLink { get; set; } = "Second";
+
+    [Parameter]
+    public string ThirdLink { get; set; } = "Third";
+}
