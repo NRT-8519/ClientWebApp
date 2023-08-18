@@ -1,0 +1,243 @@
+﻿@page "/edit_patient/{UUID}"
+@using ClientWebApp.DTOs;
+@using System.Text.Json;
+@using System.Text;
+@using Microsoft.AspNetCore.Components;
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4 mt-1">Editing patient</h1>
+    @if (patient == null) 
+    {
+        <SpinnerLoader/>
+    }
+    else
+    {
+        <EditForm Model="patient" OnValidSubmit="Execute" class="container">
+            <DataAnnotationsValidator />
+            <div class="row col-12 mb-3">
+                <div class="col-12">
+                    <div class="card card-body bg-light col-12 h-100">
+                        <h4>Name</h4>
+                        <div class="row">
+                            <div class="col col-md-4 col-sm-12">
+                                <div class="form-floating">
+                                    <InputText disabled="@DisableInput" class="form-control" id="first_name" placeholder="First name" @bind-Value="patient.FirstName" />
+                                    <label for="First name">First name</label>
+                                </div>
+                            </div>
+                            <div class="col col-md-2 col-sm-12">
+                                <div class="form-floating">
+                                    <InputText disabled="@DisableInput" class="form-control" id="middle_name" placeholder="Middle name" @bind-Value="patient.MiddleName" />
+                                    <label for="middle_name">Middle name</label>
+                                </div>
+                            </div>
+                            <div class="col col-md-4 col-sm-12">
+                                <div class="form-floating">
+                                    <InputText disabled="@DisableInput" class="form-control" id="last_name" placeholder="Last name" @bind-Value="patient.LastName" />
+                                    <label for="last_name">Last name</label>
+                                </div>
+                            </div>
+                            <div class="col col-md-2 col-sm-12">
+                                <div class="form-floating">
+                                    <InputText disabled="@DisableInput" class="form-control" id="title" placeholder="Title" @bind-Value="patient.Title" />
+                                    <label for="title">Title</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Gender</h4>
+                        <InputRadioGroup disabled="@DisableInput" Name="Gender" @bind-Value="patient.Gender">
+                            <div class="container">
+                                <InputRadio disabled="@DisableInput" class="btn-check" Value="'M'" id="gender-m" />
+                                <label class="btn btn-outline-warning col-md-5 col-sm-2" for="gender-m"><div class="bi bi-gender-male" style="font-size: 2rem; color: deepskyblue;" /></label>
+
+                                <InputRadio disabled="@DisableInput" class="btn-check" Value="'F'" id="gender-f" />
+                                <label class="btn btn-outline-warning col-md-5 col-sm-2" for="gender-f"><div class="bi bi-gender-female" style="font-size: 2rem; color: hotpink;" /></label>
+                            </div>
+                        </InputRadioGroup>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Date of birth</h4>
+                        <InputDate disabled="@DisableInput" class="form-control" min="1900-01-01" max="@date.ToString("yyyy-MM-dd")" @bind-Value="patient.DateOfBirth" />
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Emails</h4>
+                        @if(patient.Emails.Count < 1)
+                        {
+                            <SpinnerLoader/>
+                        }
+                        else
+                        {
+                            <div class="mb-1">
+                                <div class="form-floating">
+                                    <InputText disabled="@DisableInput" class="form-control" id="@("email-0")" placeholder="Email" @bind-Value="patient.Emails[0].Email" />
+                                    <label for="@("email-0")">Primary Email</label>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-floating">
+                                    <InputText disabled="@DisableInput" class="form-control" id="@("email-1")" placeholder="Email" @bind-Value="patient.Emails[1].Email" />
+                                    <label for="@("email-1")">Secondary Email (optional)</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Phone Numbers</h4>
+                        @if (patient.PhoneNumbers.Count < 1)
+                        {
+                            <SpinnerLoader />
+                        }
+                        else
+                        {
+                            <div class="mb-2">
+                                <div class="form-floating">
+                                    <InputText disabled="@DisableInput" class="form-control" id="@("phoneNumber-0")" placeholder="Phone number" @bind-Value="patient.PhoneNumbers[0].PhoneNumber" />
+                                    <label for="@("phoneNumber-0")">Primary Phone Number</label>
+                                </div>
+                            </div>
+                            <div class="mb-1">
+                                <div class="form-floating">
+                                    <InputText disabled="@DisableInput" class="form-control" id="@("phoneNumber-1")" placeholder="Phone number" @bind-Value="patient.PhoneNumbers[1].PhoneNumber" />
+                                    <label for="@("phoneNumber-1")">Secondary Phone Number (optional)</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-12 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <div class="form-floating">
+                            <InputText disabled="@DisableInput" class="form-control" id="ssn" placeholder="Social Security Number" @bind-Value="patient.SSN" />
+                            <label for="ssn">Social Security Number</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-12 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Assigned Doctor</h4>
+                        @if (patient.AssignedDoctor == null)
+                        {
+                            <p disabled class="card-text"><strong>Not assigned</strong></p>
+                        }
+                        else
+                        {
+                            <p disabled class="card-text"><strong>@(patient.AssignedDoctor.FirstName + " " + patient.AssignedDoctor.MiddleName.First() + ". " + patient.AssignedDoctor.LastName)</strong></p>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Password expiry date</h4>
+                        <p class="card-text"><strong>@(patient.PasswordExpiryDate)</strong></p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <button disabled="@DisableInput" type="button" @onclick="ForceExpireAccount" class="btn btn-lg btn-danger w-100 h-100">
+                            Force password expiry
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-12 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Unique Identifier</h4>
+                        <p disabled class="card-text"><strong>@(patient.UUID)</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-primary w-100">
+                        Save changes
+                    </button>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="button" @onclick="DisableAccount" class="btn btn-lg btn-danger w-100">
+                        Disable account
+                    </button>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <a disabled="@DisableInput" href="patients" class="btn btn-lg btn-secondary w-100">
+                        Discard changes
+                    </a>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+
+    [ParameterAttribute]
+    public string UUID { get; set; }
+    public bool DisableInput = false;
+    public PatientDetailsDTO? patient = new();
+    DateTime date = DateTime.Now;
+
+    char Gender;
+
+    public async Task Execute()
+    {
+        DisableInput = true;
+        string content = JsonSerializer.Serialize(patient);
+        StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+        await Client.PutAsync("api/users/patients/edit", bodyContent);
+
+        NavigationManager.NavigateTo("/patient_details/" + UUID);
+    }
+
+    public async Task DisableAccount()
+    {
+        patient.IsDisabled = true;
+
+        await Execute();
+    }
+
+    public async Task ForceExpireAccount()
+    {
+        patient.IsExpired = true;
+        patient.PasswordExpiryDate = DateTime.Now;
+
+        await Execute();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        patient = await Client.GetFromJsonAsync<PatientDetailsDTO>("api/users/patients/" + UUID);
+        
+        if (patient.Emails.Count == 1)
+        {
+            patient.Emails.Add(new EmailDTO { Email = "" });
+        }
+
+        if (patient.PhoneNumbers.Count == 1)
+        {
+            patient.PhoneNumbers.Add(new PhoneNumberDTO { PhoneNumber = "" });
+        }
+    }
+}
