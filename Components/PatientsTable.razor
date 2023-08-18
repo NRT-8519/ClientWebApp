@@ -16,7 +16,7 @@
                 <tr>
                     <td>@(i + 1)</td>
                     <td>@(Patients[i].FirstName + " " + Patients[i].MiddleName.First() + ". " + Patients[i].LastName)</td>
-                    <td>@(Patients[i].AssignedDoctor)</td>
+                    <td>@(Patients[i].AssignedDoctor.FirstName + " " + Patients[i].AssignedDoctor.MiddleName.First() + ". " + Patients[i].AssignedDoctor.LastName)</td>
                     <td>@(Patients[i].UUID.ToString())</td>
                     <td><a href="patient_details/@Patients[i].UUID" class="btn btn-sm btn-outline-success w-100">Details</a></td>
                 </tr>
