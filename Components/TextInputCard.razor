@@ -1,0 +1,42 @@
+﻿<div class="card card-body bg-light h-100">
+    <h4>@Title</h4>
+    <div class="mb-1">
+        <div class="form-floating">
+            <InputText type="@(IsPassword ? "password" : "text")" disabled="@DisableInput" placeholder="@Label" class="form-control" id="@(Id)" @bind-Value="TextValue" />
+            <label for="@(Id)">@Label</label>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Example Title";
+
+    [Parameter]
+    public string Label { get; set; } = "Example Label";
+
+    [Parameter]
+    public string TextValue 
+    {
+        get => textValue; set
+        {
+            if (this.textValue == value) return;
+            this.textValue = value;
+            TextValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public string Id { get; set; } = "example_id";
+
+    [Parameter]
+    public bool DisableInput { get; set; } = false;
+
+    [Parameter]
+    public bool IsPassword { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<string> TextValueChanged { get; set; }
+
+    private string textValue;
+}

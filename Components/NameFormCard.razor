@@ -1,0 +1,94 @@
+﻿<div class="card card-body bg-light col-12 h-100">
+    <h4>Name</h4>
+    <div class="row">
+        <div class="col col-md-4 col-sm-12">
+            <div class="form-floating">
+                <InputText disabled="@DisableInput" class="form-control" id="first_name" placeholder="First name" @bind-Value="@FirstName"/>
+                <label for="First name">First name</label>
+            </div>
+        </div>
+        <div class="col col-md-2 col-sm-12">
+            <div class="form-floating">
+                <InputText disabled="@DisableInput" class="form-control" id="middle_name" placeholder="Middle name" @bind-Value="@MiddleName"/>
+                <label for="middle_name">Middle name</label>
+            </div>
+        </div>
+        <div class="col col-md-4 col-sm-12">
+            <div class="form-floating">
+                <InputText disabled="@DisableInput" class="form-control" id="last_name" placeholder="Last name" @bind-Value="@LastName"/>
+                <label for="last_name">Last name</label>
+            </div>
+        </div>
+        <div class="col col-md-2 col-sm-12">
+            <div class="form-floating">
+                <InputText disabled="@DisableInput" class="form-control" id="title" placeholder="Title" @bind-Value="@Title"/>
+                <label for="title">Title</label>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public bool DisableInput { get; set; } = false;
+
+    [Parameter]
+    public string FirstName 
+    { 
+        get => firstName;
+        set
+        {
+            if (firstName == value) return;
+            firstName = value;
+            FirstNameChanged.InvokeAsync(value);
+        }
+    }
+
+
+
+    [Parameter]
+    public string MiddleName 
+    { 
+        get => middleName; 
+        set
+        {
+            if (middleName == value) return;
+            middleName = value;
+            MiddleNameChanged.InvokeAsync(value);
+        } 
+    }
+
+    [Parameter]
+    public string LastName
+    {
+        get => lastName;
+        set
+        {
+            if (lastName == value) return;
+            lastName = value;
+            LastNameChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public string Title
+    {
+        get => title;
+        set
+        {
+            if (title == value) return;
+            title = value;
+            TitleChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> FirstNameChanged { get; set; }
+    [Parameter]
+    public EventCallback<string> MiddleNameChanged { get; set; }
+    [Parameter]
+    public EventCallback<string> LastNameChanged { get; set; }
+    [Parameter]
+    public EventCallback<string> TitleChanged { get; set; }
+
+    private string firstName, middleName, lastName, title;
+}

@@ -1,0 +1,27 @@
+﻿<div class="card card-body bg-light h-100">
+    <h4>Date of birth</h4>
+    <InputDate disabled="@DisableInput" class="form-control" min="1900-01-01" max="@date.ToString("yyyy-MM-dd")" @bind-Value="DateOfBirth" />
+</div>
+
+@code {
+    [Parameter]
+    public DateOnly DateOfBirth 
+    { 
+        get => dateOfBirth; 
+        set
+        {
+            if (dateOfBirth == value) return;
+            dateOfBirth = value;
+            DateOfBirthChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public bool DisableInput { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<DateOnly> DateOfBirthChanged { get; set; }
+
+    private DateTime date = DateTime.Now;
+    private DateOnly dateOfBirth;
+}

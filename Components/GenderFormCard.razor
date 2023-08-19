@@ -1,0 +1,33 @@
+﻿<div class="card card-body bg-light h-100">
+    <h4>Gender</h4>
+    <InputRadioGroup disabled="@DisableInput" Name="Gender" @bind-Value="@Gender">
+        <div class="container">
+            <InputRadio disabled="@DisableInput" Name="Gender" class="btn-check" Value="'M'" id="gender-m" />
+            <label class="btn btn-outline-warning col-md-5 col-sm-2" for="gender-m"><div class="bi bi-gender-male" style="font-size: 2rem; color: deepskyblue;" /></label>
+
+            <InputRadio disabled="@DisableInput" Name="Gender" class="btn-check" Value="'F'" id="gender-f" />
+            <label class="btn btn-outline-warning col-md-5 col-sm-2" for="gender-f"><div class="bi bi-gender-female" style="font-size: 2rem; color: hotpink;" /></label>
+        </div>
+    </InputRadioGroup>
+</div>
+
+@code {
+    [Parameter]
+    public char Gender {
+        get => gender; 
+        set
+        {
+            if (gender == value) return;
+            gender = value;
+            GenderChanged.InvokeAsync(value);
+        } 
+    }
+
+    [Parameter]
+    public bool DisableInput { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<char> GenderChanged { get; set; }
+
+    private char gender;
+}
