@@ -15,7 +15,25 @@
     }
     else
     {
-        <PatientsTable Patients="patients"/>
+        <div class="container text-center justify-content-center">
+            <div class="row col-12 mb-3">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Name, Assigned doctor's name, UUID..." aria-label="Name, Assigned doctor's name, UUID..." aria-describedby="search-button">
+                    <button class="btn btn-outline-primary" @onclick="InvokeSearch" type="button" id="search-button">Search</button>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-12">
+                    <a href="new_patient" class="btn btn-primary w-100">Add a new patient</a>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-12">
+                    <PatientsTable Patients="patients" />
+                </div>
+            </div>
+        </div>
+        
     }
 </div>
 
@@ -26,5 +44,10 @@
     {
         //var result = await Client.GetAsync("api/users/patients/all/basic");
         patients = await Client.GetFromJsonAsync<PatientBasicDTO[]>("api/users/patients/all/basic");
+    }
+
+    async void InvokeSearch()
+    {
+        
     }
 }
