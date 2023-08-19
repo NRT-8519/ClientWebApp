@@ -1,0 +1,66 @@
+﻿@page "/new_patient"
+
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Components;
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4 mt-1">New patient</h1>
+    <EditForm Model="patient" OnValidSubmit="Execute" class="container">
+        <DataAnnotationsValidator />
+        <div class="row col-12 mb-3">
+                <div class="col-12">
+                    <NameFormCard DisableInput="@DisableInput" @bind-FirstName="@patient.FirstName" @bind-MiddleName="@patient.MiddleName" @bind-LastName="@patient.LastName" @bind-Title="@patient.Title"/>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+            <div class="col-md-6 col-sm-12">
+                <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.Username" Title="Username" Label="Username" Id="username" />
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.Password" Title="Password" Label="Password" Id="password" IsPassword="@(true)"/>
+            </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12">
+                    <GenderFormCard DisableInput="@DisableInput" @bind-Gender="@patient.Gender"/>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <DateOfBirthFormCard DisableInput="@DisableInput" @bind-DateOfBirth="@patient.DateOfBirth"/>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.Email" Title="Email" Label="Email" Id="email" />
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.PhoneNumber" Title="Phone Number" Label="Phone Number" Id="phoneNumber"/>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-12 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.SSN" Title="Social Security Number" Label="SSN" Id="ssn" />
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-success w-100">
+                        Create new patient
+                    </button>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a disabled="@DisableInput" href="patients" class="btn btn-lg btn-secondary w-100">
+                        Discard
+                    </a>
+                </div>
+            </div>
+    </EditForm>
+</div>
+@code {
+    private PatientDetailsSecureDTO? patient = new();
+    private bool DisableInput = false;
+
+    private async Task Execute()
+    {
+        
+    }
+}
