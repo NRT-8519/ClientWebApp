@@ -117,20 +117,16 @@
             <div class="row mt-3">
                 <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
                     <div class="card card-body bg-light h-100">
-                        <h5 class="card-title">Emails</h5>
-                        @foreach (EmailDTO email in patient.Emails)
-                        {
-                            <p class="card-text"><a class="link-secondary" href="mailto:@(email.Email)"><i class="bi bi-envelope"/> @email.Email</a></p>
-                        }
+                        <h5 class="card-title">Email</h5>
+                        <p class="card-text"><a class="link-secondary" href="mailto:@(patient.Email)"><i class="bi bi-envelope" /> @patient.Email</a></p>
+
                     </div>
                 </div>
                 <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
                     <div class="card card-body bg-light h-100">
-                        <h5 class="card-title">Phone numbers</h5>
-                        @foreach (PhoneNumberDTO phoneNumber in patient.PhoneNumbers)
-                        {
-                            <p class="card-text"><a class="link-secondary" href="mailto:@(phoneNumber.PhoneNumber)"><i class="bi bi-telephone" /> @phoneNumber.PhoneNumber</a></p>
-                        }
+                        <h5 class="card-title">Phone number</h5>
+                        <p class="card-text"><a class="link-secondary" href="tel:@(patient.PhoneNumber)"><i class="bi bi-telephone" /> @patient.PhoneNumber</a></p>
+
                     </div>
                 </div>
             </div>
