@@ -86,7 +86,7 @@
                         {
                             <p class="card-text">
                                 <strong>
-                                    @(patient.AssignedDoctor.FirstName + " " + patient.AssignedDoctor.MiddleName.First() + ". " + patient.AssignedDoctor.LastName)
+                                    @(patient.AssignedDoctor != null && patient.AssignedDoctor.UUID != Guid.Empty ? patient.AssignedDoctor.FirstName + " " + patient.AssignedDoctor.MiddleName.First() + ". " + patient.AssignedDoctor.LastName : "Not Assigned")
                                 </strong>
                             </p>
                             <div class="row justify-content-center">
@@ -97,6 +97,14 @@
                                 </div>
                             </div>
                         }
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Username</h5>
+                        <p class="card-text"><strong>@(patient.Username)</strong></p>
                     </div>
                 </div>
             </div>
