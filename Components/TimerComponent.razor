@@ -1,0 +1,23 @@
+﻿<div>@time</div>
+
+@code {
+    string time;
+    Timer timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        timer = new Timer(Tick, null, 0, 1000);
+    }
+
+    private void Tick(object o)
+    {
+        time = DateTime.Now.ToString();
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}
