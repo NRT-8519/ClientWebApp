@@ -65,34 +65,39 @@
         patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize);
     }
 
-    async void InvokeSearch()
+    async Task InvokeSearch()
     {
         currentPage = 1;
         currentFilter = searchString;
+        patients = null;
         patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&searchString=" + searchString);
     }
 
-    async void GetFirst()
+    async Task GetFirst()
     {
         currentPage = 1;
+        patients = null;
         patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&currentFilter=" + currentFilter);
     }
 
-    async void GetLast()
+    async Task GetLast()
     {
         currentPage = patients.TotalPages;
+        patients = null;
         patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&currentFilter=" + currentFilter);
     }
 
-    async void GetPrevious()
+    async Task GetPrevious()
     {
         currentPage -= 1;
+        patients = null;
         patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&currentFilter=" + currentFilter);
     }
 
-    async void GetNext()
+    async Task GetNext()
     {
         currentPage += 1;
+        patients = null;
         patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&currentFilter=" + currentFilter);
     }
 }
