@@ -1,4 +1,5 @@
-﻿<div class="card card-body bg-light h-100">
+﻿@using System.Linq.Expressions;
+<div class="card card-body bg-light h-100">
     <h4>Gender</h4>
     <InputRadioGroup disabled="@DisableInput" Name="Gender" @bind-Value="@Gender">
         <div class="container">
@@ -9,9 +10,13 @@
             <label class="btn btn-outline-warning col-md-5 col-sm-2" for="gender-f"><div class="bi bi-gender-female" style="font-size: 2rem; color: hotpink;" /></label>
         </div>
     </InputRadioGroup>
+    <ValidationMessage For="@ValidationForGender" />
 </div>
 
 @code {
+    [Parameter]
+    public Expression<Func<char>>? ValidationForGender { get; set; }
+
     [Parameter]
     public char Gender {
         get => gender; 

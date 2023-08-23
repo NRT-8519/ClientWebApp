@@ -1,14 +1,19 @@
-﻿<div class="card card-body bg-light h-100">
+﻿@using System.Linq.Expressions;
+<div class="card card-body bg-light h-100">
     <h4>@Title</h4>
     <div class="mb-1">
         <div class="form-floating">
             <InputText type="@(IsPassword ? "password" : "text")" disabled="@DisableInput" placeholder="@Label" class="form-control" id="@(Id)" @bind-Value="TextValue" />
             <label for="@(Id)">@Label</label>
+            <ValidationMessage For="@For" />
         </div>
     </div>
 </div>
 
 @code {
+    [Parameter]
+    public Expression<Func<string>>? For { get; set; }
+    
     [Parameter]
     public string Title { get; set; } = "Example Title";
 

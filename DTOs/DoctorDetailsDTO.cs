@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ClientWebApp.DTOs
 {
-    public class PatientDetailsDTO
+    public class DoctorDetailsDTO
     {
         public Guid UUID { get; set; }
 
@@ -60,6 +60,14 @@ namespace ClientWebApp.DTOs
         public DateTime PasswordExpiryDate { get; set; }
         public bool IsDisabled { get; set; }
         public bool IsExpired { get; set; }
-        public UserBasicDTO AssignedDoctor { get; set; }
+
+        [Required(ErrorMessage = "Area of expertise is required!")]
+        [StringLength(100)]
+        public string AreaOfExpertise { get; set; }
+
+        [Required]
+        [Range(100, 999, ErrorMessage = "Room number must be between 100 and 999")]
+        public int RoomNumber { get; set; }
+        public List<UserBasicDTO> Patients { get; set; } = new();
     }
 }

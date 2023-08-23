@@ -1,9 +1,14 @@
-﻿<div class="card card-body bg-light h-100">
+﻿@using System.Linq.Expressions;
+<div class="card card-body bg-light h-100">
     <h4>Date of birth</h4>
     <InputDate disabled="@DisableInput" class="form-control" min="1900-01-01" max="@date.ToString("yyyy-MM-dd")" @bind-Value="DateOfBirth" />
+    <ValidationMessage For="@For"/>
 </div>
 
 @code {
+    [Parameter]
+    public Expression<Func<DateOnly>>? For { get; set; }
+
     [Parameter]
     public DateOnly DateOfBirth 
     { 

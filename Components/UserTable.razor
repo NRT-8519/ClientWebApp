@@ -20,7 +20,7 @@
                     <td>@(Entity[i].Username)</td>
                     <td>@(Entity[i].Email)</td>
                     <td>@(Entity[i].UUID.ToString())</td>
-                    <td><a href="patient_details/@Entity[i].UUID" class="btn btn-sm btn-outline-success w-100">Details</a></td>
+                    <td><a href="@Link/@Entity[i].UUID" class="btn btn-sm btn-outline-success w-100">Details</a></td>
                 </tr>
             }
         </tbody>
@@ -28,6 +28,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public string Link { get; set; }
+
     [Parameter]
     public List<UserBasicDTO> Entity { get; set; }
 }
