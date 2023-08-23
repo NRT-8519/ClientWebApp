@@ -1,0 +1,24 @@
+﻿<a href="@Link" class="card card-body card-hover link-dark nav-link" onmouseover="this.style.backgroundColor='@HoverColor'" onmouseout="this.style.backgroundColor='@DefaultColor'" style="background-color: '@DefaultColor'">
+    <h3 class="card-title">@ChildContent @CardTitle</h3>
+    <h3 class="card-text">@CardText</h3>
+</a>
+
+@code {
+    [Parameter]
+    public string Link { get; set; } = "";
+
+    [Parameter]
+    public string CardTitle { get; set; } = "Example title";
+
+    [Parameter]
+    public string CardText { get; set; } = "Example text";
+
+    [Parameter]
+    public string DefaultColor { get; set; } = "#f8f9fa";
+
+    [Parameter]
+    public string HoverColor { get; set; } = "#d8dbdf";
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

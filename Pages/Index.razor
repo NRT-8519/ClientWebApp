@@ -1,3 +1,90 @@
 ﻿@page "/"
+@using ClientWebApp.Components
+@using ClientWebApp.Features;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Blazored.LocalStorage
+@using System.Security.Claims;
 
-<PageTitle>Home - Web App</PageTitle>
+@inject ILocalStorageService localStorage
+
+<PageTitle>Dashboard - Web App</PageTitle>
+
+<AuthorizeView Roles="ADMINISTRATOR">
+    @if (user == null)
+    {
+        <SpinnerLoader/>
+    }
+    else
+    {
+        <div class="container mt-5">
+            <h4 class="display-4 mb-4">Welcome, @user</h4>
+            <div class="col-12">
+                <div class="row mb-4">
+                    <div class="col-md-4 col-sm-12">
+                        <LinkCard Link="doctors" CardTitle="Hospital staff" CardText="0">
+                            <span class="medical-icon-i-care-staff-area" style="color: rebeccapurple"></span>
+                        </LinkCard>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <LinkCard Link="patients" CardTitle="Patients" CardText="0">
+                            <span class="medical-icon-i-inpatient" style="color: hotpink"></span>
+                        </LinkCard>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <LinkCard Link="administrators" CardTitle="Administrators" CardText="0">
+                            <span class="medical-icon-i-administration" style="color: darkolivegreen"></span>
+                        </LinkCard>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-4 col-sm-12">
+                        <LinkCard Link="medicines" CardTitle="Medicines" CardText="0">
+                            <span class="medical-icon-i-pharmacy" style="color: cornflowerblue"></span>
+                        </LinkCard>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <LinkCard Link="companies" CardTitle="Companies" CardText="0">
+                            <span class="bi bi-building-fill"></span>
+                        </LinkCard>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <LinkCard Link="issuers" CardTitle="Issuers" CardText="0">
+                            <span class="bi bi-file-earmark-check-fill"></span>
+                        </LinkCard>
+                    </div>
+                </div>
+                <div class="row mb-4 mt-5">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="card card-body bg-light">
+                            <h3 class="card-title">Service reports</h3>
+                            <h4 class="card-text">No reports</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-12 col-sm-12">
+                        <ServiceStatusCard/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</AuthorizeView>
+
+@code {
+    protected string user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        user = claims.Single(c => c.Type.Equals("nameid")).Value.Split(" ")[0];
+
+        foreach (Claim claim in claims)
+        {
+            Console.WriteLine(claim);
+        }
+    }
+}
+
