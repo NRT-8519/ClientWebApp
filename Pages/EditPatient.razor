@@ -18,35 +18,51 @@
     {
         <EditForm Model="patient" OnValidSubmit="Execute" class="container">
             <DataAnnotationsValidator />
-            <div class="row col-12 mb-3">
+            <div class="row col-12 mb-4">
                 <div class="col-12">
-                    <NameFormCard DisableInput="@DisableInput" @bind-FirstName="@patient.FirstName" @bind-MiddleName="@patient.MiddleName" @bind-LastName="@patient.LastName" @bind-Title="@patient.Title"/>
+                    <div class="row">
+                        <div class="col-md-3 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.FirstName" Title="First Name" Label="First Name" Id="first_name" For="() => patient.FirstName" />
+                        </div>
+                        <div class="col-md-3 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.MiddleName" Title="Middle Name" Label="Middle Name" Id="middle_name" For="() => patient.MiddleName" />
+
+                        </div>
+                        <div class="col-md-3 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.LastName" Title="Last Name" Label="Last Name" Id="last_name" For="() => patient.LastName" />
+
+                        </div>
+                        <div class="col-md-3 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.Title" Title="Title" Label="Title" Id="Title" For="() => patient.Title" />
+
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="row col-12 mb-3">
+            <div class="row col-12 mb-4">
                 <div class="col-md-6 col-sm-12">
-                    <GenderFormCard DisableInput="@DisableInput" @bind-Gender="@patient.Gender"/>
+                    <GenderFormCard DisableInput="@DisableInput" @bind-Gender="@patient.Gender" ValidationForGender="() => patient.Gender" />
                 </div>
                 <div class="col-md-6 col-sm-12">
-                    <DateOfBirthFormCard DisableInput="@DisableInput" @bind-DateOfBirth="@patient.DateOfBirth"/>
+                    <DateOfBirthFormCard DisableInput="@DisableInput" @bind-DateOfBirth="@patient.DateOfBirth" For="() => patient.DateOfBirth" />
                 </div>
             </div>
-            <div class="row col-12 mb-3">
+            <div class="row col-12 mb-4">
+                <div class="col-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.Username" Title="Username" Label="Username" Id="username" For="() => patient.Username" />
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-6 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.Email" Title="Email" Label="Email" Id="email" For="() => patient.Email" />
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.PhoneNumber" Title="Phone Number" Label="Phone Number" Id="phoneNumber" For="() => patient.PhoneNumber" />
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
                 <div class="col-md-12 col-sm-12">
-                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.Username" Title="Username" Label="Username" Id="username" />
-                </div>
-            </div>
-            <div class="row col-12 mb-3">
-                <div class="col-md-6 col-sm-12">
-                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.Email" Title="Email" Label="Email" Id="email" />
-                </div>
-                <div class="col-md-6 col-sm-12">
-                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.PhoneNumber" Title="Phone Number" Label="Phone Number" Id="phoneNumber"/>
-                </div>
-            </div>
-            <div class="row col-12 mb-3">
-                <div class="col-md-12 col-sm-12">
-                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.SSN" Title="Social Security Number" Label="SSN" Id="ssn" />
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@patient.SSN" Title="Social Security Number" Label="SSN" Id="ssn" For="() => patient.SSN" />
                 </div>
             </div>
             <div class="row col-12 mb-3">
@@ -59,7 +75,7 @@
                         }
                         else
                         {
-                            <p disabled class="card-text"><strong>@(patient.AssignedDoctor.FirstName + " " + patient.AssignedDoctor.MiddleName.First() + ". " + patient.AssignedDoctor.LastName)</strong></p>
+                            <p><strong>@(patient.AssignedDoctor != null && patient.AssignedDoctor.UUID != Guid.Empty ? patient.AssignedDoctor.FirstName + " " + patient.AssignedDoctor.MiddleName.First() + ". " + patient.AssignedDoctor.LastName : "Not Assigned")</strong></p>
                         }
                     </div>
                 </div>
