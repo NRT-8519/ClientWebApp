@@ -1,0 +1,155 @@
+﻿@page "/doctor_details/{UUID}"
+@using ClientWebApp.DTOs;
+@inject HttpClient Client
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4 mt-1">Patient details</h1>
+    @if (doctor == null)
+    {
+        <SpinnerLoader />
+    }
+    else
+    {
+        <div class="container mt-1">
+            <div class="row text-center justify-content-center align-items-stretch">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Name</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(doctor.FirstName + " " + doctor.MiddleName.First() + ". " + doctor.LastName)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Title</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(doctor.Title == null ? "No title" : doctor.Title)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Gender</h5>
+                        @if (doctor.Gender == 'M')
+                        {
+                            <div class="bi bi-gender-male" style="font-size: 2rem; color: deepskyblue;" />
+                        }
+                        else if (doctor.Gender == 'F')
+                        {
+                            <div class="bi bi-gender-female" style="font-size: 2rem; color: hotpink;" />
+                        }
+                        else
+                        {
+                            <div class="bi bi-gender-ambiguous" style="font-size: 2rem; color: mediumpurple;" />
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Date of birth</h5>
+                        <p class="card-text"><strong>@doctor.DateOfBirth</strong></p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Social Security Number</h5>
+                        <p class="card-text"><strong>@doctor.SSN</strong></p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Area of expertise</h5>
+                        <p class="card-text"><strong>@doctor.AreaOfExpertise</strong></p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Doctor's office</h5>
+                        <p class="card-text"><strong>@doctor.RoomNumber</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Username</h5>
+                        <p class="card-text"><strong>@(doctor.Username)</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Account status</h5>
+                        <p class="card-text"><strong>@(doctor.IsDisabled ? "Disabled" : doctor.IsExpired ? "Expired password" : "Active")</strong></p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Password expiry date and time</h5>
+                        <p class="card-text"><strong>@doctor.PasswordExpiryDate</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Email</h5>
+                        <p class="card-text"><a class="link-secondary" href="mailto:@(doctor.Email)"><i class="bi bi-envelope" /> @doctor.Email</a></p>
+
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Phone number</h5>
+                        <p class="card-text"><a class="link-secondary" href="tel:@(doctor.PhoneNumber)"><i class="bi bi-telephone" /> @doctor.PhoneNumber</a></p>
+
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Unique identifier</h5>
+                        <p class="card-text"><strong>@doctor.UUID</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3 mb-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a href="edit_doctor/@(doctor.UUID)" class="btn btn-lg btn-warning w-100">
+                        Edit
+                    </a>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a href="print_doctor_details/@(doctor.UUID)" class="btn btn-lg btn-secondary w-100">
+                        Print
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    public DoctorDetailsDTO? doctor;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //var result = await Client.GetAsync("api/users/patients/all/basic");
+        doctor = await Client.GetFromJsonAsync<DoctorDetailsDTO>("api/users/doctors/" + UUID);
+    }
+}
