@@ -1,0 +1,106 @@
+﻿@page "/medicines"
+@using ClientWebApp.Components
+@using ClientWebApp.DTOs;
+
+@inject HttpClient Client
+
+<PageTitle>Medicines - Admin</PageTitle>
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4">Medicines</h1>
+
+    @if (medicines == null || medicines.items.Count == 0)
+    {
+        <SpinnerLoader />
+    }
+    else
+    {
+        <div class="container text-center justify-content-center">
+            <div class="row col-12 mb-3">
+                <div class="input-group">
+                    <input type="text" class="form-control" @bind-value="@searchString" placeholder="Type a search query..." aria-label="Type a search query..." aria-describedby="search-button">
+                    <button class="btn btn-outline-primary" @onclick="InvokeSearch" type="button" id="search-button">Search</button>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-12">
+                    <a href="new_medicine" class="btn btn-primary w-100">Add a new medicine</a>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-12">
+                    <MedicinesTable Medicines="medicines.items" Link="medicine_details" />
+                </div>
+            </div>
+            <div class="row col-12 mb-3 justify-content-center">
+                <div class="col-1">
+                    <button disabled="@(!medicines.HasPrevious)" type="button" @onclick="GetFirst" class="btn btn-primary w-100"><div class="bi bi-chevron-double-left"></div></button>
+                </div>
+                <div class="col-1">
+                    <button disabled="@(!medicines.HasPrevious)" type="button" @onclick="GetPrevious" class="btn btn-primary w-100"><div class="bi bi-chevron-left"></div></button>
+                </div>
+                <div class="col-1">
+                    <button disabled="@(!medicines.HasNext)" type="button" @onclick="GetNext" class="btn btn-primary w-100"><div class="bi bi-chevron-right"></div></button>
+                </div>
+                <div class="col-1">
+                    <button disabled="@(!medicines.HasNext)" type="button" @onclick="GetLast" class="btn btn-primary w-100"><div class="bi bi-chevron-double-right"></div></button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private PaginatedResultDTO<MedicineDTO>? medicines;
+
+    int currentPage = 1;
+    int pageSize = 10;
+    string searchString = "";
+    string currentFilter = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize);
+    }
+
+    async Task InvokeSearch()
+    {
+        currentPage = 1;
+        currentFilter = searchString;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&searchString=" + searchString);
+    }
+
+    async Task GetFirst()
+    {
+        currentPage = 1;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&currentFilter=" + currentFilter);
+    }
+
+    async Task GetLast()
+    {
+        currentPage = medicines.TotalPages;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&currentFilter=" + currentFilter);
+    }
+
+    async Task GetPrevious()
+    {
+        currentPage -= 1;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&currentFilter=" + currentFilter);
+    }
+
+    async Task GetNext()
+    {
+        currentPage += 1;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&currentFilter=" + currentFilter);
+    }
+}
+
+
+@code {
+
+}

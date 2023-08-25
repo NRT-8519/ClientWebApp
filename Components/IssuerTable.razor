@@ -1,0 +1,36 @@
+﻿@using ClientWebApp.DTOs;
+<div class="card card-body bg-light table-responsive">
+    <table class="table table-hover col-12 align-middle">
+        <thead>
+            <tr>
+                <th scope="col" class="col-1">#</th>
+                <th scope="col" class="col-3">Name</th>
+                <th scope="col" class="col-2">City</th>
+                <th scope="col" class="col-2">Area</th>
+                <th scope="col" class="col-3">UUID</th>
+                <th scope="col" class="col-1"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Issuers.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@(Issuers[i].Name)</td>
+                    <td>@(Issuers[i].City)</td>
+                    <td>@(Issuers[i].Area)</td>
+                    <td>@(Issuers[i].UUID)</td>
+                    <td><a href="@Link/@Issuers[i].UUID" class="btn btn-sm btn-outline-success w-100">Details</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter]
+    public string Link { get; set; }
+
+    [Parameter]
+    public List<IssuerDTO> Issuers { get; set; }
+}

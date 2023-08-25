@@ -6,6 +6,7 @@
 @using System.Security.Claims;
 
 @inject ILocalStorageService localStorage
+@inject HttpClient Client
 
 <PageTitle>Dashboard - Web App</PageTitle>
 
@@ -92,6 +93,20 @@
         {
             Console.WriteLine(claim);
         }
+
+        HospitalStaff = await GetCount("api/users/doctors/count");
+        Patients = await GetCount("api/users/patients/count");
+        Administrators = await GetCount("api/users/administrators/count");
+        Medicines = await GetCount("api/medicine/count");
+        Companies = await GetCount("api/company/count");
+        Issuers = await GetCount("api/issuer/count");
+    }
+
+    private async Task<int> GetCount(string route)
+    {
+        var result = await Client.GetAsync(route);
+        var content = await result.Content.ReadAsStringAsync();
+        return int.Parse(content);
     }
 }
 
