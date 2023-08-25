@@ -21,34 +21,34 @@
             <div class="col-12">
                 <div class="row mb-4">
                     <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="doctors" CardTitle="Hospital staff" CardText="0">
+                        <LinkCard Link="doctors" CardTitle="Hospital staff" CardText="@HospitalStaff.ToString()">
                             <span class="medical-icon-i-care-staff-area" style="color: rebeccapurple"></span>
                         </LinkCard>
                     </div>
                     <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="patients" CardTitle="Patients" CardText="0">
+                        <LinkCard Link="patients" CardTitle="Patients" CardText="@Patients.ToString()">
                             <span class="medical-icon-i-inpatient" style="color: hotpink"></span>
                         </LinkCard>
                     </div>
                     <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="administrators" CardTitle="Administrators" CardText="0">
+                        <LinkCard Link="administrators" CardTitle="Administrators" CardText="@Administrators.ToString()">
                             <span class="medical-icon-i-administration" style="color: darkolivegreen"></span>
                         </LinkCard>
                     </div>
                 </div>
                 <div class="row mb-4">
                     <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="medicines" CardTitle="Medicines" CardText="0">
+                        <LinkCard Link="medicines" CardTitle="Medicines" CardText="@Medicines.ToString()">
                             <span class="medical-icon-i-pharmacy" style="color: cornflowerblue"></span>
                         </LinkCard>
                     </div>
                     <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="companies" CardTitle="Companies" CardText="0">
+                        <LinkCard Link="companies" CardTitle="Companies" CardText="@Companies.ToString()">
                             <span class="bi bi-building-fill"></span>
                         </LinkCard>
                     </div>
                     <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="issuers" CardTitle="Issuers" CardText="0">
+                        <LinkCard Link="issuers" CardTitle="Issuers" CardText="@Issuers.ToString()">
                             <span class="bi bi-file-earmark-check-fill"></span>
                         </LinkCard>
                     </div>
@@ -73,6 +73,13 @@
 
 @code {
     protected string user;
+
+    protected int HospitalStaff = -1;
+    protected int Patients = -1;
+    protected int Administrators = -1;
+    protected int Medicines = -1;
+    protected int Companies = -1;
+    protected int Issuers = -1;
 
     protected override async Task OnInitializedAsync()
     {
