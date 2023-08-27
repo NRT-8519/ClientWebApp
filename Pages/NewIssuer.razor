@@ -1,0 +1,71 @@
+﻿@page "/new_issuer"
+
+@using ClientWebApp.DTOs
+@using ClientWebApp.Components
+@using System.Text.Json;
+@using System.Text;
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4 mt-1">New issuer</h1>
+    @if (issuer == null)
+    {
+        <SpinnerLoader />
+    }
+    else
+    {
+        <EditForm Model="issuer" OnValidSubmit="Execute" class="container">
+            <DataAnnotationsValidator />
+            <div class="row col-12 mb-4">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@issuer.Name" Title="Company Name" Label="Company Name" Id="company_name" For="() => issuer.Name" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-md-4 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@issuer.City" Title="City" Label="City" Id="City" For="() => issuer.City" />
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@issuer.Area" Title="Area" Label="Area" Id="area" For="() => issuer.Area" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-primary w-100">
+                        Create new issuer
+                    </button>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a disabled="@DisableInput" href="companies" class="btn btn-lg btn-secondary w-100">
+                        Discard
+                    </a>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private IssuerDTO issuer = new();
+    private bool DisableInput = false;
+
+    public async Task Execute()
+    {
+        DisableInput = true;
+        string content = JsonSerializer.Serialize(issuer);
+        StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+        await Client.PostAsync("api/issuer/add", bodyContent);
+
+        NavigationManager.NavigateTo("issuers");
+    }
+}
