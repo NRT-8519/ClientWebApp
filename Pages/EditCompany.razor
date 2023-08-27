@@ -1,0 +1,82 @@
+﻿@page "/edit_company/{UUID}"
+
+@using ClientWebApp.Components
+@using ClientWebApp.DTOs;
+@using System.Text.Json;
+@using System.Text;
+@using Microsoft.AspNetCore.Components
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4 mt-1">Editing company</h1>
+    @if (company == null)
+    {
+        <SpinnerLoader />
+    }
+    else
+    {
+        <EditForm Model="company" OnValidSubmit="Execute" class="container">
+            <DataAnnotationsValidator />
+            <div class="row col-12 mb-4">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@company.Name" Title="Company Name" Label="Company Name" Id="company_name" For="() => company.Name" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-md-4 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@company.Country" Title="Country" Label="Country" Id="country" For="() => company.Country" />
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@company.City" Title="City" Label="City" Id="city" For="() => company.City" />
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@company.Address" Title="Address" Label="Address" Id="address" For="() => company.Address" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-primary w-100">
+                        Save changes
+                    </button>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a disabled="@DisableInput" href="companies" class="btn btn-lg btn-secondary w-100">
+                        Discard changes
+                    </a>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+    public bool DisableInput = false;
+    public CompanyDTO? company;
+
+    public async Task Execute()
+    {
+        DisableInput = true;
+        string content = JsonSerializer.Serialize(company);
+        StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+        await Client.PutAsync("api/company/edit", bodyContent);
+
+        NavigationManager.NavigateTo("/company_details/" + UUID);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        company = await Client.GetFromJsonAsync<CompanyDTO>("api/company/" + UUID);
+    }
+}
