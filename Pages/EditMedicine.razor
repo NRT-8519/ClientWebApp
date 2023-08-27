@@ -122,6 +122,11 @@
                 </div>
             </div>
             <div class="row col-12 mb-4">
+                <div class="col-md-12 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@medicine.Clearance.ClearanceNumber" Title="Clearance number" Label="Clearance number" Id="clearance_number" For="() => medicine.UniqueClassification" />
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
                 <div class="col-md-6 col-sm-12">
                     <div class="card card-body bg-light">
                         <h4>Clearance begin date</h4>
