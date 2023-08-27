@@ -1,0 +1,179 @@
+﻿@page "/medicine_details/{UUID}"
+@using ClientWebApp.DTOs;
+@inject HttpClient Client
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center mt-4">
+    <h1 class="display-4 mb-4">Medicine details</h1>
+    @if (medicine == null)
+    {
+        <SpinnerLoader />
+    }
+    else
+    {
+        <div class="container">
+            <div class="row text-center justify-content-center mb-4">
+                <div class="col-md-10 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Name</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.Name)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Prescription type</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.PrescriptionType)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center justify-content-center mb-4">
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Type</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.Type)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Dosage</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.Dosage)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Dosage Type</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.DosageType)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center justify-content-center mb-4">
+                <div class="col-md-12 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">EAN</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.EAN)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center justify-content-center mb-4">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">ATC</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.ATC)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Unique classification</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.UniqueClassification)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center justify-content-center mb-4">
+                <div class="col-md-12 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">International Non-proprietary name</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.INN)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center justify-content-center mb-4">
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Company</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.Company.Name)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Issuer</h5>
+                        <p class="card-text">
+                            <strong>
+                                @(medicine.Issuer.Name)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Clearance</h5>
+                        <p class="card-text">
+                            <strong>
+                                From @(medicine.Clearance.BeginDate) to @(medicine.Clearance.ExpiryDate)
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-12 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Unique identifier</h5>
+                        <p class="card-text"><strong>@medicine.UUID</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a href="edit_medicine/@(medicine.UUID)" class="btn btn-lg btn-warning w-100">
+                        Edit
+                    </a>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a href="print_medicine_details/@(medicine.UUID)" class="btn btn-lg btn-secondary w-100">
+                        Print
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    public MedicineDTO? medicine;
+
+    protected override async Task OnInitializedAsync()
+    {
+        medicine = await Client.GetFromJsonAsync<MedicineDTO>("api/medicine/" + UUID);
+    }
+}
