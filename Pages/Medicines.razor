@@ -99,8 +99,3 @@
         medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&currentFilter=" + currentFilter);
     }
 }
-
-
-@code {
-
-}
