@@ -15,7 +15,7 @@
             @for (int i = 0; i < Companies.Count; i++)
             {
                 <tr>
-                    <td>@(i + 1)</td>
+                    <td>@(i + 1 + (PageNumber == 1 ? 0 : PageSize * (PageNumber - 1)))</td>
                     <td>@(Companies[i].Name)</td>
                     <td>@(Companies[i].Country)</td>
                     <td>@(Companies[i].City)</td>
@@ -33,4 +33,10 @@
 
     [Parameter]
     public List<CompanyDTO> Companies { get; set; }
+
+    [Parameter]
+    public int PageNumber { get; set; }
+
+    [Parameter]
+    public int PageSize { get; set; }
 }
