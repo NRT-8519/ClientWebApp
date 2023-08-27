@@ -88,6 +88,7 @@
         var claims = JwtParser.ParseClaimsFromJwt(token);
 
         user = claims.Single(c => c.Type.Equals("nameid")).Value.Split(" ")[0];
+        var exp = claims.Single(c => c.Type.Equals("exp")).Value;
 
         foreach (Claim claim in claims)
         {
