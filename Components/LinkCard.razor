@@ -1,6 +1,6 @@
 ﻿<a href="@Link" class="card card-body card-hover link-dark nav-link" onmouseover="this.style.backgroundColor='@HoverColor'" onmouseout="this.style.backgroundColor='@DefaultColor'" style="background-color: '@DefaultColor'">
     <h3 class="card-title">@ChildContent @CardTitle</h3>
-    @if (int.Parse(CardText) == -1)
+    @if (CardText.Equals("-1"))
     {
         <h3 class="card-text"><span class="spinner-border"></span></h3>
     }
