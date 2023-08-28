@@ -1,0 +1,70 @@
+﻿@page "/profile/{UUID}"
+
+@using Blazored.LocalStorage;
+@using ClientWebApp.Components
+@using ClientWebApp.DTOs;
+@using System.Text.Json;
+@using System.Text;
+@using ClientWebApp.Features;
+@using Microsoft.AspNetCore.Components;
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    @if (AllowView)
+    {
+        <h1 class="display-4 mt-5">My profile</h1>
+        @if (user == null)
+        {
+            <SpinnerLoader />
+        }
+        else
+        {
+            <EditForm Model="user" OnValidSubmit="Execute" class="container">
+
+            </EditForm>
+        }
+    }
+    else
+    {
+        <h1 class="display-4 mt-5">Page Not Found</h1>
+    }
+</div>
+
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+    public bool DisableInput = false;
+    public bool AllowView = true;
+    public UserDetailsDTO? user;
+
+    public async Task Execute()
+    {
+        DisableInput = true;
+        string content = JsonSerializer.Serialize(user);
+        StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+        await Client.PutAsync("api/users/edit", bodyContent);
+
+        NavigationManager.NavigateTo("/my_profile/" + UUID);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+
+        if (UUID.Equals(jti))
+        {
+            user = await Client.GetFromJsonAsync<UserDetailsDTO>("api/users/" + UUID);
+        }
+        else
+        {
+            AllowView = false;
+        }
+    }
+}

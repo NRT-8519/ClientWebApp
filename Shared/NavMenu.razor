@@ -1,4 +1,8 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using Blazored.LocalStorage;
+@using ClientWebApp.Features;
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject ILocalStorageService localStorage
 
 <AuthorizeView>
     <Authorized>
@@ -28,8 +32,74 @@
                             </div>
                         </Authorized>
                     </AuthorizeView>
+                    <AuthorizeView Roles="DOCTOR" Context="DoctorView">
+                        <Authorized>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="notes">
+                                    <span class="oi oi-document" aria-hidden="true"></span> Notes
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="prescriptions">
+                                    <span class="oi oi-script" aria-hidden="true"></span> Prescriptions
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="my_patients">
+                                    <span class="oi oi-people" aria-hidden="true"></span> Patients
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="my_schedule">
+                                    <span class="oi oi-calendar" aria-hidden="true"></span> Schedule
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="requests">
+                                    <span class="oi oi-bell" aria-hidden="true"></span> Requests
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="report">
+                                    <span class="oi oi-bullhorn" aria-hidden="true"></span> Report
+                                </NavLink>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="PATIENT" Context="PatientView">
+                        <Authorized>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="@("prescriptions/" + UUID)">
+                                    <span class="oi oi-script" aria-hidden="true"></span> My Prescriptions
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="my_doctor">
+                                    <span class="medical-icon-i-care-staff-area pe-3" style="font-size: 1.25rem" aria-hidden="true"> </span> My Doctor
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="my_schedule">
+                                    <span class="oi oi-calendar" aria-hidden="true"></span> Appointments
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="my_requests">
+                                    <span class="oi oi-bell" aria-hidden="true"></span> My Requests
+                                </NavLink>
+                            </div>
+                            <div class="nav-item px-3 col-12">
+                                <NavLink class="nav-link" href="report">
+                                    <span class="oi oi-bullhorn" aria-hidden="true"></span> Report
+                                </NavLink>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
                 <div class="navbar-text nav-item px-3 col-12 align-self-end">
+                    <NavLink class="nav-link" href="@("profile/" + UUID)">
+                        <span class="oi oi-person" aria-hidden="true"></span> My profile
+                    </NavLink>
                     <NavLink class="nav-link" href="logout">
                         <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
                     </NavLink>
@@ -41,11 +111,20 @@
 
 @code {
     private bool collapseNavMenu = true;
-
+    private string UUID = "";
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+        UUID = jti;
     }
 }

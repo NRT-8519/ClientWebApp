@@ -1,0 +1,8 @@
+﻿@page "/prescriptions/{UUID}"
+
+<h3>PatientPrescriptions</h3>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+}

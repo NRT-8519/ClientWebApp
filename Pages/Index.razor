@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using ClientWebApp.Components
+@using ClientWebApp.DTOs;
 @using ClientWebApp.Features;
 @using Microsoft.AspNetCore.Components.Authorization
 @using Blazored.LocalStorage
@@ -10,70 +11,150 @@
 
 <PageTitle>Dashboard - Web App</PageTitle>
 
-<AuthorizeView Roles="ADMINISTRATOR">
-    @if (user == null)
-    {
-        <SpinnerLoader/>
-    }
-    else
-    {
-        <div class="container mt-5">
-            <h4 class="display-4 mb-4">Welcome, @user</h4>
-            <div class="col-12">
-                <div class="row mb-4">
-                    <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="doctors" CardTitle="Hospital staff" CardText="@HospitalStaff.ToString()">
-                            <span class="medical-icon-i-care-staff-area" style="color: rebeccapurple"></span>
-                        </LinkCard>
-                    </div>
-                    <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="patients" CardTitle="Patients" CardText="@Patients.ToString()">
-                            <span class="medical-icon-i-inpatient" style="color: hotpink"></span>
-                        </LinkCard>
-                    </div>
-                    <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="administrators" CardTitle="Administrators" CardText="@Administrators.ToString()">
-                            <span class="medical-icon-i-administration" style="color: darkolivegreen"></span>
-                        </LinkCard>
-                    </div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="medicines" CardTitle="Medicines" CardText="@Medicines.ToString()">
-                            <span class="medical-icon-i-pharmacy" style="color: cornflowerblue"></span>
-                        </LinkCard>
-                    </div>
-                    <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="companies" CardTitle="Companies" CardText="@Companies.ToString()">
-                            <span class="bi bi-building-fill"></span>
-                        </LinkCard>
-                    </div>
-                    <div class="col-md-4 col-sm-12">
-                        <LinkCard Link="issuers" CardTitle="Issuers" CardText="@Issuers.ToString()">
-                            <span class="bi bi-file-earmark-check-fill"></span>
-                        </LinkCard>
-                    </div>
-                </div>
-                <div class="row mb-4 mt-5">
-                    <div class="col-md-12 col-sm-12">
-                        <div class="card card-body bg-light">
-                            <h3 class="card-title">Service reports</h3>
-                            <h4 class="card-text">No reports</h4>
+<AuthorizeView>
+    <Authorized>
+        @if (user == null)
+        {
+            <SpinnerLoader />
+        }
+        else
+        {
+            <div class="container mt-5">
+                <h4 class="display-4 mb-5">Welcome, @user</h4>
+                <AuthorizeView Roles="ADMINISTRATOR" Context="AdminView">
+                    <Authorized>
+                        <div class="col-12">
+                            <div class="row mb-4">
+                                <div class="col-md-4 col-sm-12">
+                                    <LinkCard Link="doctors" CardTitle="Hospital staff" CardText="@HospitalStaff.ToString()">
+                                        <span class="medical-icon-i-care-staff-area" style="color: rebeccapurple"></span>
+                                    </LinkCard>
+                                </div>
+                                <div class="col-md-4 col-sm-12">
+                                    <LinkCard Link="patients" CardTitle="Patients" CardText="@Patients.ToString()">
+                                        <span class="medical-icon-i-inpatient" style="color: hotpink"></span>
+                                    </LinkCard>
+                                </div>
+                                <div class="col-md-4 col-sm-12">
+                                    <LinkCard Link="administrators" CardTitle="Administrators" CardText="@Administrators.ToString()">
+                                        <span class="medical-icon-i-administration" style="color: darkolivegreen"></span>
+                                    </LinkCard>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-md-4 col-sm-12">
+                                    <LinkCard Link="medicines" CardTitle="Medicines" CardText="@Medicines.ToString()">
+                                        <span class="medical-icon-i-pharmacy" style="color: cornflowerblue"></span>
+                                    </LinkCard>
+                                </div>
+                                <div class="col-md-4 col-sm-12">
+                                    <LinkCard Link="companies" CardTitle="Companies" CardText="@Companies.ToString()">
+                                        <span class="bi bi-building-fill"></span>
+                                    </LinkCard>
+                                </div>
+                                <div class="col-md-4 col-sm-12">
+                                    <LinkCard Link="issuers" CardTitle="Issuers" CardText="@Issuers.ToString()">
+                                        <span class="bi bi-file-earmark-check-fill"></span>
+                                    </LinkCard>
+                                </div>
+                            </div>
+                            <div class="row mb-4 mt-5">
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="card card-body bg-light">
+                                        <h3 class="card-title">Service reports</h3>
+                                        <h4 class="card-text">No reports</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-md-12 col-sm-12">
+                                    <ServiceStatusCard />
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-md-12 col-sm-12">
-                        <ServiceStatusCard/>
-                    </div>
-                </div>
+                    </Authorized>
+                </AuthorizeView>
+                <AuthorizeView Roles="DOCTOR" Context="DoctorView">
+                    <Authorized>
+                        @if (Doctor != null)
+                        {
+                            <div class="col-12">
+
+                            </div>
+                        }
+                        else
+                        {
+                            <SpinnerLoader />
+                        }
+                    </Authorized>
+                </AuthorizeView>
+                <AuthorizeView Roles="PATIENT" Context="PatientView">
+                    <Authorized>
+                        @if (Patient != null)
+                        {
+                            <div class="col-12">
+                                <div class="row mb-4">
+                                    <div class="col-md-4 col-sm-12">
+                                        <LinkCard Link="my_doctor" CardTitle="My Doctor" CardText="@("Dr. " + Patient.AssignedDoctor.FirstName + " " + Patient.AssignedDoctor.LastName)">
+                                            <span class="medical-icon-i-care-staff-area" style="color: rebeccapurple"></span>
+                                        </LinkCard>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12">
+                                        <LinkCard Link="@("prescriptions/" + UUID)" CardTitle="My Prescriptions" CardText="Number of prescriptions">
+                                            <span class="oi oi-script" style="color: rebeccapurple"></span>
+                                        </LinkCard>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12">
+                                        <LinkCard Link="my_doctor" CardTitle="My requests" CardText="Number of requests">
+                                            <span class="oi oi-bell" style="color: rebeccapurple"></span>
+                                        </LinkCard>
+                                    </div>
+                                </div>
+                                <div class="row mb-4">
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="card card-body bg-light">
+                                            <h3 class="card-title">
+                                                <span class="oi oi-calendar" style="color: rebeccapurple"></span> Appointments for today
+                                            </h3>
+                                            <div class="card card-body bg-light mb-1">
+                                                <h5 class="card-title">
+                                                    Appointment title
+                                                </h5>
+                                                <h6 class="card-text">Appointment text</h6>
+                                            </div>
+                                            <div class="card card-body bg-light mb-1">
+                                                <h5 class="card-title">
+                                                    Appointment title
+                                                </h5>
+                                                <h6 class="card-text">Appointment text</h6>
+                                            </div>
+                                            <div class="card card-body bg-light mb-1">
+                                                <h5 class="card-title">
+                                                    Appointment title
+                                                </h5>
+                                                <h6 class="card-text">Appointment text</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <SpinnerLoader/>
+                        }
+                    </Authorized>
+                </AuthorizeView>
             </div>
-        </div>
-    }
+        }
+    </Authorized>
 </AuthorizeView>
 
 @code {
     protected string user;
+
+    protected PatientDetailsDTO Patient;
+    protected DoctorDetailsDTO Doctor;
 
     protected int HospitalStaff = -1;
     protected int Patients = -1;
@@ -82,6 +163,8 @@
     protected int Companies = -1;
     protected int Issuers = -1;
 
+    private string UUID = "";
+
     protected override async Task OnInitializedAsync()
     {
         var token = await localStorage.GetItemAsStringAsync("token");
@@ -89,18 +172,37 @@
 
         user = claims.Single(c => c.Type.Equals("nameid")).Value.Split(" ")[0];
         var exp = claims.Single(c => c.Type.Equals("exp")).Value;
+        var role = claims.Single(c => c.Type.Equals("role")).Value;
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
 
-        foreach (Claim claim in claims)
+        UUID = jti;
+
+        if (role.Equals("ADMINISTRATOR"))
         {
-            Console.WriteLine(claim);
-        }
+            foreach (Claim claim in claims)
+            {
+                Console.WriteLine(claim);
+            }
 
-        HospitalStaff = await GetCount("api/users/doctors/count");
-        Patients = await GetCount("api/users/patients/count");
-        Administrators = await GetCount("api/users/administrators/count");
-        Medicines = await GetCount("api/medicine/count");
-        Companies = await GetCount("api/company/count");
-        Issuers = await GetCount("api/issuer/count");
+            HospitalStaff = await GetCount("api/users/doctors/count");
+            Patients = await GetCount("api/users/patients/count");
+            Administrators = await GetCount("api/users/administrators/count");
+            Medicines = await GetCount("api/medicine/count");
+            Companies = await GetCount("api/company/count");
+            Issuers = await GetCount("api/issuer/count");
+        }
+        else if (role.Equals("DOCTOR"))
+        {
+
+        }
+        else if (role.Equals("PATIENT"))
+        {
+            Patient = await Client.GetFromJsonAsync<PatientDetailsDTO>("api/users/patients/" + UUID);
+        }
+        else
+        {
+            Doctor = await Client.GetFromJsonAsync<DoctorDetailsDTO>("api/users/doctors/" + UUID);
+        }
     }
 
     private async Task<int> GetCount(string route)
