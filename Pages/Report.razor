@@ -1,0 +1,74 @@
+﻿@page "/report"
+
+@using Blazored.LocalStorage;
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+@using System.Text.Json;
+@using System.Text;
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
+
+<div class="d-flex flex-column col-12 align-items-center justify-content-center mt-5">
+    <h3 class="display-4 mb-5">Write a report</h3>
+    <EditForm Model="report" OnValidSubmit="SubmitReport" class="container">
+        <DataAnnotationsValidator/>
+        <div class="card card-body bg-light align-items-center justify-content-center">
+            <div class="row col-12">
+                <div class="card card-body bg-light text-center mb-4">
+                    <h4 class="card-title">Report title</h4>
+                    <div class="form-floating">
+                        <InputText disabled ="@DisableInput" placeholder="Report title..." class="form-control" id="title" @bind-Value="report.Title"/>
+                        <label>Title</label>
+                    </div>
+                </div>
+                <div class="card card-body bg-light text-center mb-4">
+                    <h4 class="card-title">Report description</h4>
+                    <div class="form-floating">
+                        <InputTextArea rows="15" disabled="@DisableInput" placeholder="Detailed report description..." class="form-control" id="title" @bind-Value="report.Title"></InputTextArea>
+                        <label>Description</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-primary w-100">
+                        Send report
+                    </button>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a disabled="@DisableInput" href="" class="btn btn-lg btn-secondary w-100">
+                        Discard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private ReportDTO report = new();
+    private bool DisableInput = false;
+
+    protected async Task SubmitReport()
+    {
+        DisableInput = true;
+
+        string content = JsonSerializer.Serialize(report);
+        StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+        await Client.PostAsync("api/report/add", bodyContent);
+
+        NavigationManager.NavigateTo("/");
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+        report.ReportedBy = Guid.Parse(jti);
+    }
+}
