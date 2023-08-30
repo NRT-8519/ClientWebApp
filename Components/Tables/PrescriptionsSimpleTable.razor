@@ -1,0 +1,31 @@
+﻿@using ClientWebApp.DTOs;
+<div class="card card-body bg-light table-responsive">
+    <table class="table table-hover col-12 align-middle">
+        <thead>
+            <tr>
+                <th scope="col" class="col-1">#</th>
+                <th scope="col" class="col-3">Medicine Name</th>
+                <th scope="col" class="col-2">Date prescribed</th>
+                <th scope="col" class="col-2">Date administered</th>
+                <th scope="col" class="col-5">Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < prescriptions.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@(prescriptions[i].Medicine)</td>
+                    <td>@(prescriptions[i].Prescribed.Equals(null) ? "/" : prescriptions[i].Prescribed)</td>
+                    <td>@(prescriptions[i].Administered.Equals(null) ? "/" : prescriptions[i].Administered)</td>
+                    <td>@(prescriptions[i].Notes.Equals("") ? "No notes" : prescriptions[i].Notes)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter]
+    public List<PrescriptionDTO> prescriptions { get; set; }
+}
