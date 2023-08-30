@@ -1,0 +1,96 @@
+﻿@page "/my_requests/{UUID}"
+@using ClientWebApp.Components.Tables
+@using ClientWebApp.DTOs;
+
+@inject HttpClient Client
+
+<PageTitle>My Requests</PageTitle>
+
+<div class="container text-center justify-content-center align-items-center mt-5">
+    <h4 class="display-4 mb-5">My Requests</h4>
+
+    @if (requests == null)
+    {
+        <SpinnerLoader/>
+    }
+    else if (requests.items.Count == 0)
+    {
+        <h4 class="mb-4">No requests</h4>
+        <div class="row col-12 mb-3">
+            <div class="col-12">
+                <a href="new_request" class="btn btn-primary w-100">Create a new request</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row col-12 mb-3">
+            <div class="col-12">
+                <a href="new_request" class="btn btn-primary w-100">Create a new request</a>
+            </div>
+        </div>
+        <div class="row col-12 mb-3">
+            <div class="col-12">
+                <RequestsTable Requests="requests.items" Link="@("request_details/" + UUID)" />
+            </div>
+        </div>
+        <div class="row col-12 mb-3 justify-content-center">
+            <div class="col-1">
+                <button disabled="@(!requests.HasPrevious)" type="button" @onclick="GetFirst" class="btn btn-primary w-100"><div class="bi bi-chevron-double-left"></div></button>
+            </div>
+            <div class="col-1">
+                <button disabled="@(!requests.HasPrevious)" type="button" @onclick="GetPrevious" class="btn btn-primary w-100"><div class="bi bi-chevron-left"></div></button>
+            </div>
+            <div class="col-1">
+                <button disabled="@(!requests.HasNext)" type="button" @onclick="GetNext" class="btn btn-primary w-100"><div class="bi bi-chevron-right"></div></button>
+            </div>
+            <div class="col-1">
+                <button disabled="@(!requests.HasNext)" type="button" @onclick="GetLast" class="btn btn-primary w-100"><div class="bi bi-chevron-double-right"></div></button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    public PaginatedResultDTO<RequestDTO> requests;
+
+    int currentPage = 1;
+    int pageSize = 10;
+
+    async Task GetFirst()
+    {
+        currentPage = 1;
+        requests = null;
+        requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+    }
+
+    async Task GetLast()
+    {
+        currentPage = requests.TotalPages;
+        requests = null;
+        requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+    }
+
+    async Task GetPrevious()
+    {
+        currentPage -= 1;
+        requests = null;
+        requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+    }
+
+    async Task GetNext()
+    {
+        currentPage += 1;
+        requests = null;
+        requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+        requests = result;
+    }
+}

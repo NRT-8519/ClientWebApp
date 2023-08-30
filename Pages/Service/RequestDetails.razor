@@ -1,0 +1,110 @@
+﻿@page "/request_details/{UserUUID}/{RequestUUID}"
+@using ClientWebApp.DTOs;
+
+@inject HttpClient Client
+
+<div class="container text-center justify-content-center align-items-center mt-5">
+    <h4 class="display-4 mb-5">Request details</h4>
+
+    @if (request == null)
+    {
+        <SpinnerLoader/>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-body bg-light justify-content-center align-items-center">
+                    <h2 class="card-title">
+                        Title: @request.Title
+                    </h2>
+                    <div class="row col-12 mb-4">
+                        <div class="col-md-6 col-sm-12">
+                            <div class="card card-body ">
+                                <h4>Doctor</h4>
+                                <h5 class="card-text">
+                                    @request.Doctor
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <div class="card card-body ">
+                                <h4>Patient</h4>
+                                <h5 class="card-text">
+                                    @request.Patient
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row col-12 mb-4">
+                        <div class="col-md-6 col-sm-12">
+                            <div class="card card-body ">
+                                <h4>Type</h4>
+                                <h5 class="card-text">
+                                    @request.Type
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <div class="card card-body ">
+                                <h4>Status</h4>
+                                <h5 class="card-text @(request.Status.Equals("AWAITING") ? "text-warning" : request.Status.Equals("APPROVED") ? "text-success" : request.Status.Equals("DENIED") ? "text-danger" : "")">
+                                    @request.Status
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row col-12 mb-4">
+                        <div class="col-md-12 col-sm-12">
+                            <div class="card card-body ">
+                                <h4 class="card-title">
+                                    Description
+                                </h4>
+                                <p class="card-text">
+                                    @request.Description
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row col-12 mb-4">
+                        <div class="col-md-12 col-sm-12">
+                            <div class="card card-body ">
+                                <h4 class="card-title">
+                                    Status reason
+                                </h4>
+                                <p class="card-text">
+                                    @(request.Reason.Equals("") ? "Not yet available" : request.Reason)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row col-12 mb-3">
+                        <div class="col-md-12 col-sm-12">
+                            <a href="@("my_requests/" + UserUUID)" class="btn btn-lg btn-secondary w-100">
+                                Go Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+    [ParameterAttribute]
+    public string UserUUID { get; set; }
+
+    [ParameterAttribute]
+    public string RequestUUID { get; set; }
+
+    public RequestDTO request;
+
+    public bool AllowView = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        request = await Client.GetFromJsonAsync<RequestDTO>("api/request/" + RequestUUID);
+    }
+}

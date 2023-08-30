@@ -1,0 +1,68 @@
+﻿@page "/my_doctor/{UUID}"
+@using Blazored.LocalStorage;
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+
+@inject HttpClient Client
+@inject ILocalStorageService localStorage
+
+<div class="container text-center justify-content-center align-items-center mt-5">
+    @if (AllowView)
+    {
+        @if (doctor != null)
+        {
+            <div class="row col-12 mb-4">
+                <div class="col-12">
+                    <div class="card card-body bg-light">
+                        <h2 class="card-title">Name</h2>
+                        <h4 class="card-text">Dr. @(doctor.FirstName) @(doctor.LastName)</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-6">
+                    <div class="card card-body bg-light">
+                        <h2 class="card-title">Phone number</h2>
+                        <h4 class="card-text"><a href="@("tel:" + doctor.PhoneNumber)">@(doctor.PhoneNumber)</a></h4>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card card-body bg-light">
+                        <h2 class="card-title">Email</h2>
+                        <h4 class="card-text"><a href="@("mailto:" + doctor.Email)">@(doctor.Email)</a></h4>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <h1 class="display-4 mt-5">Page Not Found</h1>
+    }
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    private bool AllowView = true;
+    public UserDetailsDTO doctor;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+
+        if (UUID.Equals(jti))
+        {
+            var user = await Client.GetFromJsonAsync<PatientDetailsDTO>("api/users/patients/" + UUID);
+            doctor = await Client.GetFromJsonAsync<UserDetailsDTO>("api/users/" + user.AssignedDoctor.UUID);
+        }
+        else
+        {
+            AllowView = false;
+        }
+    }
+}

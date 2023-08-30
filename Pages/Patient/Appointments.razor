@@ -1,0 +1,43 @@
+﻿@page "/appointments/{UUID}"
+@using ClientWebApp.DTOs;
+
+@inject HttpClient Client
+
+<div class="container text-center justify-content-center align-items-center mt-5">
+    <h4 class="display-4 mb-5">Appointments</h4>
+
+    <div class="container">
+        <div class="row">
+
+        </div>
+        <div class="row">
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    public PaginatedResultDTO<ScheduleDTO> schedules;
+
+    int currentPage = 1;
+    int pageSize = 10;
+    string searchString = "";
+    string currentFilter = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        //company = await Client.GetFromJsonAsync<CompanyDTO>("api/company/" + UUID);
+        try
+        {
+            schedules = await Client.GetFromJsonAsync<PaginatedResultDTO<ScheduleDTO>>("api/schedule/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&company=" + UUID);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Medicine database for this company is empty, or the server faulted.");
+            schedules = null;
+        }
+    }
+}

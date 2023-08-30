@@ -1,0 +1,210 @@
+﻿@page "/new_medicine"
+
+@using ClientWebApp.Components.Forms;
+@using ClientWebApp.DTOs;
+@using System.Text.Json;
+@using System.Text;
+@using Microsoft.AspNetCore.Components;
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4 mt-1">New medicine</h1>
+    @if (medicine == null || companies == null || issuers == null)
+    {
+        <SpinnerLoader />
+    }
+    else
+    {
+        <EditForm Model="medicine" OnValidSubmit="Execute" class="container">
+            <DataAnnotationsValidator />
+            <div class="row col-12 mb-4">
+                <div class="col-md-12 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@medicine.Name" Title="Name" Label="Name" Id="name" For="() => medicine.Name" />
+                </div>
+            </div>
+            <div class="row col-mb-12 col-sm-12 mb-4">
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Type</h4>
+                        <div class="form-floating">
+                            <InputSelect disabled="@DisableInput" class="form-select" @bind-Value="medicine.Type" id="type_select">
+                                <option selected disabled value="">Select a type...</option>
+                                <option value="VACCINE">Vaccine</option>
+                                <option value="RADIOPHARMACEUTICAL">Radio-pharmaceutical</option>
+                                <option value="HUMANE">Humane</option>
+                                <option value="HOMEOPATHIC">Homeopathic</option>
+                                <option value="BIOLOGICAL">Biological</option>
+                                <option value="BLOOD">Blood</option>
+                                <option value="TRADITIONAL">Traditional</option>
+                                <option value="PLANT_BASED">Plant based</option>
+                            </InputSelect>
+                            <label for="type_select">Type</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Prescription type</h4>
+                        <div class="form-floating">
+                            <InputSelect disabled="@DisableInput" class="form-select" @bind-Value="medicine.PrescriptionType" id="prescription_type_select">
+                                <option selected disabled value="">Select a prescription type...</option>
+                                <option value="Z">Admission with special care (Z)</option>
+                                <option value="SZ">In-hospital addmision only (SZ)</option>
+                                <option value="SZR">Diagnostic use (SZR)</option>
+                                <option value="SZN">Opoid (SZN)</option>
+                                <option value="BR">Without prescription (BR)</option>
+                                <option value="R">Requires prescription (R)</option>
+                            </InputSelect>
+                            <label for="prescription_type_select">Prescription Type</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-6 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@medicine.DosageType" Title="Dosage type" Label="Dosage type" Id="dosage_type" For="() => medicine.DosageType" />
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@medicine.Dosage" Title="Dosage" Label="Dosage" Id="dosage" For="() => medicine.Dosage" />
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-4 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@medicine.EAN" Title="EAN" Label="EAN" Id="ean" For="() => medicine.EAN" />
+                </div>
+                <div class="col-md-4 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@medicine.ATC" Title="ATC" Label="ATC" Id="atc" For="() => medicine.ATC" />
+                </div>
+                <div class="col-md-4 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@medicine.UniqueClassification" Title="Unique classification" Label="Unique classification" Id="unique_classification" For="() => medicine.UniqueClassification" />
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-12 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>International Non-proprietary name</h4>
+                        <InputTextArea class="form-control" @bind-Value="@medicine.INN" rows="4"></InputTextArea>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Company</h4>
+                        <div class="form-floating">
+                            <InputSelect disabled="@DisableInput" class="form-select" @bind-Value="@CompanyUUID" id="company_select">
+                                <option selected disabled value="">Select a company...</option>
+                                @foreach (var company in companies)
+                                {
+                                    <option value="@company.UUID">@company.Name</option>
+                                }
+                            </InputSelect>
+                            <label for="company_select">Company</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Issuer</h4>
+                        <div class="form-floating">
+                            <InputSelect disabled="@DisableInput" class="form-select" @bind-Value="@IssuerUUID" id="company_select">
+                                <option selected disabled value="">Select an issuer...</option>
+                                @foreach (var issuer in issuers)
+                                {
+                                    <option value="@issuer.UUID">@issuer.Name</option>
+                                }
+                            </InputSelect>
+                            <label for="issuer_select">Issuer</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-12 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@medicine.Clearance.ClearanceNumber" Title="Clearance number" Label="Clearance number" Id="clearance_number" For="() => medicine.UniqueClassification" />
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light">
+                        <h4>Clearance begin date</h4>
+                        <div class="form-floating">
+                            <InputDate id="begin_date" class="form-control" min="1900-01-01" max="@DateTime.Now.ToString("yyyy-MM-dd")" disabled="@DisableInput" @bind-Value="medicine.Clearance.BeginDate" />
+                            <label for="begin_date">Begin date</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light">
+                        <h4>Clearance expiry date</h4>
+                        <div class="form-floating">
+                            <InputDate id="expiry_date" class="form-control" min="1900-01-02" max="@DateTime.Now.AddYears(100).ToString("yyyy-MM-dd")" disabled="@DisableInput" @bind-Value="medicine.Clearance.ExpiryDate" />
+                            <label for="expiry_date">Begin date</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-primary w-100">
+                        Create new medicine
+                    </button>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a disabled="@DisableInput" href="medicines" class="btn btn-lg btn-secondary w-100">
+                        Discard changes
+                    </a>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    public bool DisableInput = false;
+    public MedicineDTO? medicine = new()
+    {
+            Name = "",
+            Type = "",
+            Dosage = "",
+            DosageType = "",
+            EAN = "",
+            ATC = "",
+            UniqueClassification = "",
+            INN = "",
+            PrescriptionType = "",
+            Clearance = new() { BeginDate = DateOnly.FromDateTime(DateTime.Now), ExpiryDate = DateOnly.FromDateTime(DateTime.Now) },
+            Company = new(),
+            Issuer = new()
+
+    };
+    public List<CompanyDTO>? companies = new();
+    public List<IssuerDTO>? issuers = new();
+
+    public string CompanyUUID = "";
+    public string IssuerUUID = "";
+
+    public async Task Execute()
+    {
+        DisableInput = true;
+        CompanyDTO selectedCompany = companies.Single(c => c.UUID.Equals(Guid.Parse(CompanyUUID)));
+        IssuerDTO selectedIssuer = issuers.Single(i => i.UUID.Equals(Guid.Parse(IssuerUUID)));
+
+        medicine.Company = selectedCompany;
+        medicine.Issuer = selectedIssuer;
+
+        string content = JsonSerializer.Serialize(medicine);
+        StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+        await Client.PostAsync("api/medicine/add", bodyContent);
+
+        NavigationManager.NavigateTo("/medicines");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        companies = await Client.GetFromJsonAsync<List<CompanyDTO>>("api/company/all/all");
+        issuers = await Client.GetFromJsonAsync<List<IssuerDTO>>("api/issuer/all/all");
+    }
+}

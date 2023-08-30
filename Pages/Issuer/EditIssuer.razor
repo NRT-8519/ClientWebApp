@@ -1,0 +1,79 @@
+﻿@page "/edit_issuer/{UUID}"
+
+@using ClientWebApp.Components.Forms
+@using ClientWebApp.DTOs;
+@using System.Text.Json;
+@using System.Text;
+@using Microsoft.AspNetCore.Components
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4 mt-1">Editing issuer</h1>
+    @if (issuer == null)
+    {
+        <SpinnerLoader />
+    }
+    else
+    {
+        <EditForm Model="issuer" OnValidSubmit="Execute" class="container">
+            <DataAnnotationsValidator />
+            <div class="row col-12 mb-4">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@issuer.Name" Title="Company Name" Label="Company Name" Id="company_name" For="() => issuer.Name" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@issuer.City" Title="City" Label="City" Id="city" For="() => issuer.City" />
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@issuer.Area" Title="Area" Label="Area" Id="area" For="() => issuer.Area" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-primary w-100">
+                        Save changes
+                    </button>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a disabled="@DisableInput" href="companies" class="btn btn-lg btn-secondary w-100">
+                        Discard changes
+                    </a>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+    public bool DisableInput = false;
+    public IssuerDTO? issuer;
+
+    public async Task Execute()
+    {
+        DisableInput = true;
+        string content = JsonSerializer.Serialize(issuer);
+        StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+        await Client.PutAsync("api/issuer/edit", bodyContent);
+
+        NavigationManager.NavigateTo("/issuer_details/" + UUID);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        issuer = await Client.GetFromJsonAsync<IssuerDTO>("api/issuer/" + UUID);
+    }
+}

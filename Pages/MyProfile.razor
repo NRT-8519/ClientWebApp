@@ -1,7 +1,6 @@
 ﻿@page "/profile/{UUID}"
 
 @using Blazored.LocalStorage;
-@using ClientWebApp.Components
 @using ClientWebApp.DTOs;
 @using System.Text.Json;
 @using System.Text;
@@ -12,18 +11,168 @@
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService localStorage
 
-<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+<div class="container text-center justify-content-center align-items-center mt-5">
     @if (AllowView)
     {
-        <h1 class="display-4 mt-5">My profile</h1>
+        <h1 class="display-4">My profile</h1>
+        <h6 class="mb-5">Commiting changes will cause a logout from the system!</h6>
         @if (user == null)
         {
             <SpinnerLoader />
         }
         else
         {
-            <EditForm Model="user" OnValidSubmit="Execute" class="container">
+            <EditForm Model="user" OnValidSubmit="Execute">
+                <DataAnnotationsValidator/>
+                <div class="row col-12 mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light">
+                            <h4>Name</h4>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" @bind-Value="user.FirstName" id="first_name" />
+                                        <label for="first_name">First name</label>
+                                        <ValidationMessage For="() => user.FirstName" />
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" @bind-Value="user.MiddleName" id="middle_name" />
+                                        <label for="middle_name">Middle name</label>
+                                        <ValidationMessage For="() => user.MiddleName" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" @bind-Value="user.LastName" id="last_name" />
+                                        <label for="last_name">Last name</label>
+                                        <ValidationMessage For="() => user.LastName" />
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" @bind-Value="user.Title" id="title" />
+                                        <label for="title">Title</label>
+                                        <ValidationMessage For="() => user.Title" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-12 mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light">
+                            <h4>Credentials</h4>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" @bind-Value="user.Username" id="username" />
+                                        <label for="username">Username</label>
+                                        <ValidationMessage For="() => user.Username" />
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <InputText type="password" class="form-control" @bind-Value="user.Password" id="password" />
+                                        <label for="password">Password</label>
+                                        <ValidationMessage For="() => user.Password" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-12 mb-4">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card card-body bg-light">
+                            <h4>Email</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" @bind-Value="user.Email" id="email" />
+                                        <label for="email">Email</label>
+                                        <ValidationMessage For="() => user.Email" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card card-body bg-light">
+                            <h4>Phone number</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" @bind-Value="user.PhoneNumber" id="phone_number" />
+                                        <label for="phone_number">Phone number</label>
+                                        <ValidationMessage For="() => user.PhoneNumber" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-12 mb-4">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card card-body bg-light h-100">
+                            <h4>Gender</h4>
+                            <InputRadioGroup disabled="@DisableInput" Name="Gender" @bind-Value="user.Gender">
+                                <div class="container">
+                                    <InputRadio disabled="@DisableInput" Name="Gender" class="btn-check" Value="'M'" id="gender-m" />
+                                    <label class="btn btn-outline-warning col-md-5 col-sm-2" for="gender-m"><div class="bi bi-gender-male" style="font-size: 2rem; color: deepskyblue;" /></label>
 
+                                    <InputRadio disabled="@DisableInput" Name="Gender" class="btn-check" Value="'F'" id="gender-f" />
+                                    <label class="btn btn-outline-warning col-md-5 col-sm-2" for="gender-f"><div class="bi bi-gender-female" style="font-size: 2rem; color: hotpink;" /></label>
+                                </div>
+                            </InputRadioGroup>
+                            <ValidationMessage For="() => user.Gender" />
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card card-body bg-light">
+                            <h4>Date Of Birth</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <InputDate class="form-control" @bind-Value="user.DateOfBirth" id="date_of_birth" />
+                                        <label for="date_of_birth">Date of birth</label>
+                                        <ValidationMessage For="() => user.DateOfBirth" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-12 mb-4">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="card card-body bg-light">
+                            <h4>Social Security Number</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" @bind-Value="user.SSN" id="ssn" />
+                                        <label for="ssn">SSN</label>
+                                        <ValidationMessage For="() => user.SSN" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-12 mb-3">
+                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                        <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-primary w-100">
+                            Save changes
+                        </button>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                        <a disabled="@DisableInput" href="" class="btn btn-lg btn-secondary w-100">
+                            Discard changes
+                        </a>
+                    </div>
+                </div>
             </EditForm>
         }
     }
@@ -46,9 +195,11 @@
         DisableInput = true;
         string content = JsonSerializer.Serialize(user);
         StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
-        await Client.PutAsync("api/users/edit", bodyContent);
+        var result = await Client.PutAsJsonAsync<UserDetailsDTO>("api/users/edit", user);
 
-        NavigationManager.NavigateTo("/my_profile/" + UUID);
+        await Task.Delay(1000);
+
+        NavigationManager.NavigateTo("/logout");
     }
 
     protected override async Task OnInitializedAsync()

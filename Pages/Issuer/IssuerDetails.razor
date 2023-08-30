@@ -1,0 +1,161 @@
+﻿@page "/issuer_details/{UUID}"
+@using ClientWebApp.Components.Tables
+@using ClientWebApp.DTOs;
+
+@inject HttpClient Client
+
+<div class="container text-center justify-content-center align-items-center mt-5">
+    <h1 class="display-4 mb-5">Issuer details</h1>
+    @if(issuer == null)
+    {
+        <SpinnerLoader/>
+    }
+    else
+    {
+        <div class="container">
+            <div class="row text-center justify-content-center mb-4">
+                <div class="col-12">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Name</h5>
+                        <p class="card-text">
+                            <strong>
+                                @issuer.Name
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center justify-content-center mb-4">
+                <div class="col-12">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Origin</h5>
+                        <p class="card-text">
+                            <strong>
+                                @issuer.City, @issuer.Area
+                            </strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            @if (medicines != null)
+        {
+            <div class="row text-center justify-content-center mb-4">
+                <div class="row col-12 mb-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control" @bind-value="@searchString" placeholder="Type a search query..." aria-label="Type a search query..." aria-describedby="search-button">
+                        <button class="btn btn-outline-primary" @onclick="InvokeSearch" type="button" id="search-button">Search</button>
+                    </div>
+                </div>
+                <div class="row col-12 mb-3">
+                    <div class="col-12">
+                        <MedicinesTable Medicines="medicines.items" Link="medicine_details" />
+                    </div>
+                </div>
+                <div class="row col-12 mb-3 justify-content-center">
+                    <div class="col-1">
+                        <button disabled="@(!medicines.HasPrevious)" type="button" @onclick="GetFirst" class="btn btn-primary w-100"><div class="bi bi-chevron-double-left"></div></button>
+                    </div>
+                    <div class="col-1">
+                        <button disabled="@(!medicines.HasPrevious)" type="button" @onclick="GetPrevious" class="btn btn-primary w-100"><div class="bi bi-chevron-left"></div></button>
+                    </div>
+                    <div class="col-1">
+                        <button disabled="@(!medicines.HasNext)" type="button" @onclick="GetNext" class="btn btn-primary w-100"><div class="bi bi-chevron-right"></div></button>
+                    </div>
+                    <div class="col-1">
+                        <button disabled="@(!medicines.HasNext)" type="button" @onclick="GetLast" class="btn btn-primary w-100"><div class="bi bi-chevron-double-right"></div></button>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card card-body bg-light mb-4">
+                <h4>No medicines from this issuer found</h4>
+            </div>
+        }
+            <div class="row mb-4">
+                <div class="col-md-12 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="card card-body bg-light h-100">
+                        <h5 class="card-title">Unique identifier</h5>
+                        <p class="card-text"><strong>@issuer.UUID</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a href="edit_issuer/@(issuer.UUID)" class="btn btn-lg btn-warning w-100">
+                        Edit
+                    </a>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <a href="print_issuer_details/@(issuer.UUID)" class="btn btn-lg btn-secondary w-100">
+                        Print
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    public IssuerDTO? issuer;
+    private PaginatedResultDTO<MedicineDTO>? medicines;
+
+    int currentPage = 1;
+    int pageSize = 10;
+    string searchString = "";
+    string currentFilter = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        issuer = await Client.GetFromJsonAsync<IssuerDTO>("api/issuer/" + UUID);
+        try
+        {
+            medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&issuer=" + UUID);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Medicine database for this issuer is empty, or the server faulted.");
+            medicines = null;
+        }
+    }
+
+    async Task InvokeSearch()
+    {
+        currentPage = 1;
+        currentFilter = searchString;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&issuer=" + UUID + "&searchString=" + searchString);
+    }
+
+    async Task GetFirst()
+    {
+        currentPage = 1;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&issuer=" + UUID + "&currentFilter=" + currentFilter);
+    }
+
+    async Task GetLast()
+    {
+        currentPage = medicines.TotalPages;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&issuer=" + UUID + "&currentFilter=" + currentFilter);
+    }
+
+    async Task GetPrevious()
+    {
+        currentPage -= 1;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&issuer=" + UUID + "&currentFilter=" + currentFilter);
+    }
+
+    async Task GetNext()
+    {
+        currentPage += 1;
+        medicines = null;
+        medicines = await Client.GetFromJsonAsync<PaginatedResultDTO<MedicineDTO>>("api/medicine/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&issuer=" + UUID + "&currentFilter=" + currentFilter);
+    }
+}

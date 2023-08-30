@@ -1,0 +1,91 @@
+﻿@page "/new_request"
+
+@using Blazored.LocalStorage;
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
+
+<div class="container text-center justify-content-center align-items-center mt-5">
+    <h4 class="display-4 mb-5">New request</h4>
+
+    <EditForm Model="request" OnValidSubmit="Execute">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card card-body bg-light">
+                    <h4 class="card-title">Title</h4>
+                    <div class="form-floating">
+                        <InputText class="form-control" @bind-Value="request.Title" id="title" />
+                        <label for="title">Title</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card card-body bg-light">
+                    <h4 class="card-title">Request type</h4>
+                    <div class="form-floating">
+                        <InputSelect class="form-select" @bind-Value="request.Type" id="type">
+                            <option class="" disabled value="">Select a type...</option>
+                            <option value="APPOINTMENT">New appointment</option>
+                            <option value="APPOINTMENT_MOVE">Reschedule an appointment</option>
+                            <option value="APPOINTMENT_CANCEL">Cancel an appointment</option>
+                            <option value="PRESCRIPTION_EXTENSION">Extend a prescription</option>
+                        </InputSelect>
+                        <label for="type">Type</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card card-body bg-light h-100">
+                    <h4 class="card-title">Description</h4>
+                    <div class="form-floating">
+                        <InputTextArea class="form-control" rows="4" @bind-Value="request.Description" id="description"></InputTextArea>
+                        <label for="description">Description</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row col-12 mb-4">
+            <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-success w-100">
+                    Create a new request
+                </button>
+            </div>
+            <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                <a disabled="@DisableInput" href="patients" class="btn btn-lg btn-secondary w-100">
+                    Discard
+                </a>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private RequestDTO request = new() { Title = "", Description = "", Doctor = "", Patient = "", Reason = "", Status = "", Type = "" };
+    private bool DisableInput = false;
+
+    private async Task Execute()
+    {
+        DisableInput = true;
+
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+
+        var user = await Client.GetFromJsonAsync<PatientDetailsDTO>("api/users/patients/" + jti);
+
+        request.Patient = jti;
+        request.Doctor = user.AssignedDoctor.UUID.ToString();
+
+        await Client.PostAsJsonAsync<RequestDTO>("api/request/add", request);
+
+        NavigationManager.NavigateTo("/my_requests/" + jti);
+    }
+}

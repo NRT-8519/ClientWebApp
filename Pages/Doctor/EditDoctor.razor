@@ -1,0 +1,166 @@
+﻿@page "/edit_doctor/{UUID}"
+@using ClientWebApp.Components.Forms
+@using ClientWebApp.DTOs;
+@using System.Text.Json;
+@using System.Text;
+@using Microsoft.AspNetCore.Components;
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+
+<div class="d-flex flex-column content text-center justify-content-center align-items-center">
+    <h1 class="display-4 mt-1">Editing doctor</h1>
+    @if (doctor == null) 
+    {
+        <SpinnerLoader/>
+    }
+    else
+    {
+        <EditForm Model="doctor" OnValidSubmit="Execute" class="container">
+            <DataAnnotationsValidator />
+            <div class="row col-12 mb-3">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@doctor.FirstName" Title="First Name" Label="First Name" Id="first_name" For="() => doctor.FirstName" />
+                        </div>
+                        <div class="col-md-3 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@doctor.MiddleName" Title="Middle Name" Label="Middle Name" Id="middle_name" For="() => doctor.MiddleName" />
+
+                        </div>
+                        <div class="col-md-3 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@doctor.LastName" Title="Last Name" Label="Last Name" Id="last_name" For="() => doctor.LastName" />
+
+                        </div>
+                        <div class="col-md-3 col-sm-12">
+                            <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@doctor.Title" Title="Title" Label="Title" Id="Title" For="() => doctor.Title" />
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-6 col-sm-12">
+                    <GenderFormCard DisableInput="@DisableInput" @bind-Gender="@doctor.Gender" ValidationForGender="@(() => @doctor.Gender)" />
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <DateOfBirthFormCard DisableInput="@DisableInput" @bind-DateOfBirth="@doctor.DateOfBirth" For="() => doctor.DateOfBirth" />
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-6 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@doctor.AreaOfExpertise" Title="Area of Expertise" Label="Area of Expertise" Id="area_of_expertise" For="() => doctor.AreaOfExpertise" />
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light">
+                        <h4>Doctor's office</h4>
+                        <div class="mb-1">
+                            <div class="form-floating">
+                                <InputNumber min="100" max="999" disabled="@DisableInput" placeholder="Room number" class="form-control" id="room_number" ParsingErrorMessage="Out of bounds!" @bind-Value="doctor.RoomNumber" />
+                                <label for="room_number">Doctor's office</label>
+                                <ValidationMessage For="() => doctor.RoomNumber" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@doctor.Username" Title="Username" Label="Username" Id="username" For="() => doctor.Username" />
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-6 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@doctor.Email" Title="Email" Label="Email" Id="email" For="() => doctor.Email" />
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@doctor.PhoneNumber" Title="Phone Number" Label="Phone Number" Id="phoneNumber" For="() => doctor.PhoneNumber" />
+                </div>
+            </div>
+            <div class="row col-12 mb-4">
+                <div class="col-md-12 col-sm-12">
+                    <TextInputCard DisableInput="@DisableInput" @bind-TextValue="@doctor.SSN" Title="Social Security Number" Label="SSN" Id="ssn" For="() => doctor.SSN" />
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Password expiry date</h4>
+                        <p class="card-text"><strong>@(doctor.PasswordExpiryDate)</strong></p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <button disabled="@DisableInput" type="button" @onclick="ForceExpireAccount" class="btn btn-lg btn-danger w-100 h-100">
+                            Force password expiry
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-12 col-sm-12">
+                    <div class="card card-body bg-light h-100">
+                        <h4>Unique Identifier</h4>
+                        <p disabled class="card-text"><strong>@(doctor.UUID)</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-3">
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-primary w-100">
+                        Save changes
+                    </button>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <button disabled="@DisableInput" type="button" @onclick="DisableAccount" class="btn btn-lg btn-danger w-100">
+                        Disable account
+                    </button>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                    <a disabled="@DisableInput" href="patients" class="btn btn-lg btn-secondary w-100">
+                        Discard changes
+                    </a>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+
+    [ParameterAttribute]
+    public string UUID { get; set; }
+    public bool DisableInput = false;
+    public DoctorDetailsDTO? doctor;
+
+
+    public async Task Execute()
+    {
+        DisableInput = true;
+        string content = JsonSerializer.Serialize(doctor);
+        StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+        await Client.PutAsync("api/users/doctors/edit", bodyContent);
+
+        NavigationManager.NavigateTo("/doctor_details/" + UUID);
+    }
+
+    public async Task DisableAccount()
+    {
+        doctor.IsDisabled = true;
+
+        await Execute();
+    }
+
+    public async Task ForceExpireAccount()
+    {
+        doctor.IsExpired = true;
+        doctor.PasswordExpiryDate = DateTime.Now;
+
+        await Execute();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        doctor = await Client.GetFromJsonAsync<DoctorDetailsDTO>("api/users/doctors/" + UUID);
+    }
+}
