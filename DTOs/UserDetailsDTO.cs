@@ -53,7 +53,7 @@ namespace ClientWebApp.DTOs
         public char Gender { get; set; }
 
         [Required(ErrorMessage = "Social Security Number is required!")]
-        [StringLength(13, ErrorMessage = "Social Security Number must have 13 characters")]
+        [StringLength(13, ErrorMessage = "Social Security Number must contain 13 numbers")]
         public string SSN { get; set; }
 
         [DataType(DataType.DateTime)]
