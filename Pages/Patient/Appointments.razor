@@ -6,14 +6,47 @@
 <div class="container text-center justify-content-center align-items-center mt-5">
     <h4 class="display-4 mb-5">Appointments</h4>
 
-    <div class="container">
-        <div class="row">
-
+    @if (schedules == null)
+    {
+        <SpinnerLoader/>
+    }
+    else
+    {
+        <div class="container">
+            <div class="row mb-3">
+                <div class="col-6">
+                    <button disabled="@(!schedules.HasPrevious)" type="button" class="btn btn-primary w-100">Previous page</button>
+                </div>
+                <div class="col-6">
+                    <button disabled="@(!schedules.HasNext)" type="button" class="btn btn-primary w-100">Next page</button>
+                </div>
+            </div>
+            <div class="row mb-3 text-center align-items-center justify-content-center">
+                @foreach (var s in schedules.items)
+                {
+                    <div class="row col-12 mb-1">
+                        <div class="col-12">
+                            <div class="card card-body bg-light w-100 h-100">
+                                <div class="row text-center align-items-center justify-content-center">
+                                    <div class="col-3">
+                                        @(s.ScheduledDateTime.ToShortDateString())
+                                    </div>
+                                    <div class="col-6">
+                                        @(s.Event)
+                                    </div>
+                                    <div class="col-3">
+                                        <a href="@("appointment_details/" + UUID + "/" + s.Id)" class="btn btn-lg btn-outline-primary w-100 h-100">
+                                            Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-        <div class="row">
-
-        </div>
-    </div>
+    }
 </div>
 
 @code {
@@ -24,19 +57,17 @@
 
     int currentPage = 1;
     int pageSize = 10;
-    string searchString = "";
-    string currentFilter = "";
 
     protected override async Task OnInitializedAsync()
     {
         //company = await Client.GetFromJsonAsync<CompanyDTO>("api/company/" + UUID);
         try
         {
-            schedules = await Client.GetFromJsonAsync<PaginatedResultDTO<ScheduleDTO>>("api/schedule/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&company=" + UUID);
+            schedules = await Client.GetFromJsonAsync<PaginatedResultDTO<ScheduleDTO>>("api/schedule/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
         }
         catch (Exception e)
         {
-            Console.WriteLine("Medicine database for this company is empty, or the server faulted.");
+            Console.WriteLine("Schedule database for this company is empty, or the server faulted.");
             schedules = null;
         }
     }
