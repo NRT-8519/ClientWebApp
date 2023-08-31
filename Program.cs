@@ -19,4 +19,6 @@ builder.Services.AddAuthorizationCore();
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
+builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization.*", LogLevel.None);
+
 await builder.Build().RunAsync();
