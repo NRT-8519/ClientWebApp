@@ -1,7 +1,11 @@
 ﻿@page "/appointments/{UUID}"
+@using Blazored.LocalStorage;
 @using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject HttpClient Client
+@inject ILocalStorageService localStorage
 
 <div class="container text-center justify-content-center align-items-center mt-5">
     <h4 class="display-4 mb-5">Appointments</h4>
@@ -13,6 +17,15 @@
     else
     {
         <div class="container">
+            <AuthorizeView Roles="DOCTOR">
+                <Authorized>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <a href="@("new_appointment/" + UUID)" type="button" class="btn btn-secondary w-100">New appointment</a>
+                        </div>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
             <div class="row mb-3">
                 <div class="col-6">
                     <button disabled="@(!schedules.HasPrevious)" type="button" class="btn btn-primary w-100">Previous page</button>
@@ -21,6 +34,7 @@
                     <button disabled="@(!schedules.HasNext)" type="button" class="btn btn-primary w-100">Next page</button>
                 </div>
             </div>
+            
             <div class="row mb-3 text-center align-items-center justify-content-center">
                 @foreach (var s in schedules.items)
                 {
@@ -60,10 +74,22 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var role = claims.Single(c => c.Type.Equals("role")).Value;
         //company = await Client.GetFromJsonAsync<CompanyDTO>("api/company/" + UUID);
         try
         {
-            schedules = await Client.GetFromJsonAsync<PaginatedResultDTO<ScheduleDTO>>("api/schedule/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+            if (role.Equals("PATIENT"))
+            {
+                schedules = await Client.GetFromJsonAsync<PaginatedResultDTO<ScheduleDTO>>("api/schedule/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+            }
+            else 
+            {
+                schedules = await Client.GetFromJsonAsync<PaginatedResultDTO<ScheduleDTO>>("api/schedule/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + UUID);
+
+            }
         }
         catch (Exception e)
         {

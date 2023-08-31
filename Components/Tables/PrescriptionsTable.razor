@@ -1,30 +1,50 @@
 ﻿@using ClientWebApp.DTOs;
+@using Microsoft.AspNetCore.Components.Authorization
 <div class="card card-body bg-light table-responsive">
     <table class="table table-hover col-12 align-middle">
         <thead>
             <tr>
                 <th scope="col" class="col-1">#</th>
                 <th scope="col" class="col-2">Medicine Name</th>
-                <th scope="col" class="col-2">Approved by</th>
-                <th scope="col" class="col-2">Approved for</th>
                 <th scope="col" class="col-2">Date prescribed</th>
                 <th scope="col" class="col-2">Date administered</th>
+                <AuthorizeView Roles="DOCTOR">
+                    <Authorized>
+                        <th scope="col" class="col-2">Patient</th>
+                    </Authorized>
+                </AuthorizeView>
                 <th scope="col" class="col-2">Notes</th>
             </tr>
         </thead>
         <tbody>
-            @for (int i = 0; i < prescriptions.Count; i++)
-            {
-                <tr>
-                    <td>@(i + 1)</td>
-                    <td>@(prescriptions[i].Medicine)</td>
-                    <td>@(prescriptions[i].Doctor)</td>
-                    <td>@(prescriptions[i].Patient)</td>
-                    <td>@(prescriptions[i].Prescribed.Equals(null) ? "/" : prescriptions[i].Prescribed)</td>
-                    <td>@(prescriptions[i].Administered.Equals(null) ? "/" : prescriptions[i].Administered)</td>
-                    <td>@(prescriptions[i].Notes.Equals("") ? "No notes" : prescriptions[i].Notes)</td>
-                </tr>
-            }
+            <AuthorizeView Roles="DOCTOR">
+                <Authorized>
+                    @for (int i = 0; i < prescriptions.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@(prescriptions[i].Medicine)</td>
+                            <td>@(prescriptions[i].Prescribed.Equals(null) ? "/" : prescriptions[i].Prescribed)</td>
+                            <td>@(prescriptions[i].Administered.Equals(null) ? "/" : prescriptions[i].Administered)</td>
+                            <td>@(prescriptions[i].Patient)</td>
+                            <td>@(prescriptions[i].Notes.Equals("") ? "No notes" : prescriptions[i].Notes)</td>
+                        </tr>
+                    }
+                </Authorized>
+                <NotAuthorized>
+                    @for (int i = 0; i < prescriptions.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@(prescriptions[i].Medicine)</td>
+                            <td>@(prescriptions[i].Prescribed.Equals(null) ? "/" : prescriptions[i].Prescribed)</td>
+                            <td>@(prescriptions[i].Administered.Equals(null) ? "/" : prescriptions[i].Administered)</td>
+                            <td>@(prescriptions[i].Notes.Equals("") ? "No notes" : prescriptions[i].Notes)</td>
+                        </tr>
+                    }
+                </NotAuthorized>
+            </AuthorizeView>
+            
         </tbody>
     </table>
 </div>

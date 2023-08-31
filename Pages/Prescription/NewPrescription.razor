@@ -1,0 +1,159 @@
+﻿@page "/new_prescription/{UUID}"
+@using Blazored.LocalStorage;
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+
+@inject HttpClient Client
+@inject ILocalStorageService localStorage
+@inject NavigationManager NavigationManager
+
+<div class="container text-center justify-content-center align-items-center mt-5">
+    <h4 class="display-4 mb-5">New prescription</h4>
+    @if (AllowView)
+    {
+        @if (patients == null || medicines == null)
+        {
+            <SpinnerLoader/>
+        }
+        else
+        {
+            <EditForm Model="prescription" OnValidSubmit="Execute">
+                <DataAnnotationsValidator/>
+                <div class="row mb-4">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card card-body bg-light">
+                            <div class="form-floating">
+                                <InputSelect class="form-select" @bind-Value="prescription.Patient" id="patient">
+                                    <option disabled selected value="">Select a patient...</option>
+                                    @foreach (var patient in patients)
+                                    {
+                                        <option value="@patient.UUID">@patient.FirstName @patient.LastName</option>
+                                    }
+                                </InputSelect>
+                                <label for="patient">Patient</label>
+                                <ValidationMessage For="() => prescription.Patient"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card card-body bg-light">
+                            <div class="form-floating">
+                                <InputSelect class="form-select" @bind-Value="prescription.Medicine" id="medicine">
+                                    <option disabled selected value="">Select a medicine...</option>
+                                    @foreach (var medicine in medicines)
+                                    {
+                                        <option value="@medicine.UUID">@medicine.Name</option>
+                                    }
+                                </InputSelect>
+                                <label for="medicine">Medicine</label>
+                                <ValidationMessage For="() => prescription.Medicine" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light">
+                            <div class="form-floating">
+                                <InputTextArea class="form-control" rows="5" @bind-Value="prescription.Notes" id="notes">
+                                </InputTextArea>
+                                <label for="notes">Prescription notes</label>
+                                <ValidationMessage For="() => prescription.Notes" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light">
+                            <h4 class="card-title">Select a prescription method</h4>
+                            <InputRadioGroup disabled="@DisableInput" Name="IsPrescription" @bind-Value="@IsPrescription">
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-12">
+                                        <InputRadio disabled="@DisableInput" Name="IsPrescription" class="btn-check" Value="true" id="prescription" />
+                                        <label class="btn btn-outline-secondary w-100" for="prescription">Medicine is prescribed to a patient</label>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <InputRadio disabled="@DisableInput" Name="IsPrescription" class="btn-check" Value="false" id="administered" />
+                                        <label class="btn btn-outline-secondary w-100" for="administered">Medicine is administered in hospital</label>
+                                    </div>
+                                </div>
+                            </InputRadioGroup>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                        <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-success w-100">
+                            Create a new prescription
+                        </button>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                        <a disabled="@DisableInput" href="@("my_prescriptions/" + UUID)" class="btn btn-lg btn-secondary w-100">
+                            Discard
+                        </a>
+                    </div>
+                </div>
+            </EditForm>
+        }
+    }
+    else
+    {
+        <h4 class="display-4">Page Not Found</h4>
+    }
+</div>
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    private PrescriptionDTO prescription = new() { Doctor = "", Patient = "", Medicine = "" };
+
+    private bool AllowView = true;
+    private bool DisableInput = false;
+
+    private bool IsPrescription = true;
+
+    private List<UserBasicDTO> patients;
+    private List<MedicineDTO> medicines;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+
+        if (UUID.Equals(jti))
+        {
+            var result = await Client.GetFromJsonAsync<DoctorDetailsDTO>("api/users/doctors/" + UUID);
+            patients = result.Patients;
+
+            medicines = await Client.GetFromJsonAsync<List<MedicineDTO>>("api/medicine/all/all");
+        }
+        else
+        {
+            AllowView = false;
+        }
+    }
+
+    protected async Task Execute()
+    {
+        DisableInput = true;
+        prescription.Doctor = UUID;
+        if (IsPrescription)
+        {
+            prescription.Prescribed = DateOnly.FromDateTime(DateTime.Now);
+        }
+        else
+        {
+            prescription.Administered = DateOnly.FromDateTime(DateTime.Now);
+        }
+
+        await Client.PostAsJsonAsync<PrescriptionDTO>("api/prescription/add", prescription);
+
+        await Task.Delay(1000);
+
+        NavigationManager.NavigateTo("my_prescriptions/" + UUID);
+    }
+}

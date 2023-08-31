@@ -1,0 +1,166 @@
+﻿@page "/new_appointment/{UUID}"
+@using Blazored.LocalStorage;
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+@using System.ComponentModel.DataAnnotations;
+
+@inject HttpClient Client
+@inject ILocalStorageService localStorage
+@inject NavigationManager NavigationManager
+
+<div class="container text-center justify-content-center align-items-center mt-5">
+    <h4 class="display-4 mb-5">New prescription</h4>
+    @if (AllowView)
+    {
+        @if (patients == null)
+        {
+            <SpinnerLoader />
+        }
+        else
+        {
+            <EditForm Model="appointment" OnValidSubmit="Execute">
+                <DataAnnotationsValidator />
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light">
+                            <div class="form-floating">
+                                <InputSelect class="form-select" @bind-Value="appointment.PatientUUID" id="patient">
+                                    <option disabled selected value="">Select a patient...</option>
+                                    @foreach (var patient in patients)
+                                    {
+                                        <option value="@patient.UUID">@patient.FirstName @patient.LastName</option>
+                                    }
+                                </InputSelect>
+                                <label for="patient">Patient</label>
+                                <ValidationMessage For="() => appointment.PatientUUID" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light">
+                            <div class="form-floating">
+                                <InputText class="form-control" @bind-Value="appointment.Event" id="event"/>
+                                <label for="event">Appointment event</label>
+                                <ValidationMessage For="() => appointment.Event" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-8">
+                        <div class="card card-body bg-light">
+                            <h4 class="card-title">Date</h4>
+                            <div class="form-floating">
+                                <InputDate class="form-control" @bind-Value="date" id="date" />
+                                <label for="notes">Date</label>
+                                <ValidationMessage For="() => appointment.ScheduledDateTime" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card card-body bg-light">
+                            <h4 class="card-title">Time</h4>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" list="hours" @bind-Value="time.timeHours" id="hrs" />
+                                        <datalist id="hours">
+                                            @for (int i = 0; i < 24; i++)
+                                            {
+                                                <option value="@i">@i.ToString("D2")</option>
+                                            }
+                                        </datalist>
+                                        <label for="hrs">Hours</label>
+                                        <ValidationMessage For="() => time.timeHours" />
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" list="minutes" @bind-Value="time.timeMinutes" id="mins" />
+                                        <datalist id="minutes">
+                                            @for (int i = 0; i < 60; i++)
+                                            {
+                                                <option value="@i">@i.ToString("D2")</option>
+                                            }
+                                        </datalist>
+                                        <label for="mins">Minutes</label>
+                                        <ValidationMessage For="() => time.timeMinutes" />
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                        <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-success w-100">
+                            Create a new appointment
+                        </button>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                        <a disabled="@DisableInput" href="@("appointments/" + UUID)" class="btn btn-lg btn-secondary w-100">
+                            Discard
+                        </a>
+                    </div>
+                </div>
+            </EditForm>
+        }
+    }
+    else
+    {
+        <h4 class="display-4">Page Not Found</h4>
+    }
+</div>
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    private ScheduleDTO appointment = new() { ScheduledDateTime = DateTime.Now };
+
+    private bool AllowView = true;
+    private bool DisableInput = false;
+
+    private List<UserBasicDTO> patients;
+
+    private DateOnly date = DateOnly.FromDateTime(DateTime.Now);
+
+    private TimeStaticDTO time = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+
+        if (UUID.Equals(jti))
+        {
+            var result = await Client.GetFromJsonAsync<DoctorDetailsDTO>("api/users/doctors/" + UUID);
+            patients = result.Patients;
+        }
+        else
+        {
+            AllowView = false;
+        }
+    }
+
+    protected async Task Execute()
+    {
+        DisableInput = true;
+        appointment.DoctorUUID = Guid.Parse(UUID);
+        string DateTimeString = $"{date.ToString("MM/dd/yyyy")} {time.timeHours}:{time.timeMinutes}";
+
+        DateTime.TryParse(DateTimeString, out DateTime dt);
+
+        appointment.ScheduledDateTime = dt;
+
+        await Client.PostAsJsonAsync<ScheduleDTO>("api/schedule/add", appointment);
+
+        await Task.Delay(1000);
+
+        NavigationManager.NavigateTo("appointments/" + UUID);
+    }
+}

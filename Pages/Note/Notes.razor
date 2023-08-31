@@ -1,74 +1,153 @@
-﻿@page "/notes"
+﻿@page "/notes/{UUID}"
+@using Blazored.LocalStorage;
 @using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
 
 @inject HttpClient Client
+@inject ILocalStorageService localStorage
 
-<div class="d-flex flex-column content text-center justify-content-center align-items-center mt-5">
-    @if (patients != null)
+<div class="container text-center justify-content-center align-items-center mt-5">
+    @if (AllowView)
     {
-        <h4 class="display-4 mb-5">Notes</h4>
+        @if (patients != null)
+        {
+            <h4 class="display-4 mb-5">Notes</h4>
 
-        <div class="row col-12 mb-4">
-            <div class="container">
-                <div class="card card-body bg-light">
-                    <h4>Patient</h4>
-                    <div class="form-floating">
-                        <InputSelect class="form-select" @bind-Value="UUID" id="patient_select">
-                            <option disabled value="">Select a patient...</option>
-                            @foreach (var patient in patients)
-                            {
-                                <option value="@patient.UUID">@patient.FirstName @patient.LastName</option>
-                            }
-                        </InputSelect>
-                        <label for="patient_select">Patient</label>
+            <div class="row col-12 mb-4">
+                <div class="container">
+                    <div class="card card-body bg-light">
+                        <h4>Patient</h4>
+                        <div class="form-floating mb-3">
+                            <InputSelect class="form-select" @bind-Value="PatientUUID" id="patient_select">
+                                <option disabled selected value="">Select a patient...</option>
+                                @foreach (var patient in patients)
+                                {
+                                    <option value="@patient.UUID">@patient.FirstName @patient.LastName</option>
+                                }
+                            </InputSelect>
+                            <label for="patient_select">Patient</label>
+                        </div>
+                        <button disabled="@(PatientUUID == null || PatientUUID.Equals(""))" class="btn btn-secondary w-100" @onclick="GetNotes">View notes</button>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row mb-4">
-            <div class="col-12">
-                @if (notes != null)
-                {
+            <div class="row col-12 mb-4">
+                <div class="container">
+                    <div class="card card-body bg-light">
+                        @if (notes != null)
+                        {
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <a href="@("new_note/" + UUID + "/" + PatientUUID)" class="btn btn-primary w-100">New note</a>
+                                </div>
+                            </div>
+                            @if (notes.items.Count > 0)
+                            {
+                                <div class="row mb-3">
+                                    @foreach (var note in notes.items)
+                                    {
+                                        <div class="col-md-4 col-sm-6 mb-4">
+                                            <a href="@("edit_note/" + UUID + "/" + PatientUUID + "/" + note.Id)" class="card link-dark text-decoration-none" onmouseover="this.style.backgroundColor='#d8dbdf'" onmouseout="this.style.backgroundColor='#f8f9fa'" style="background-color: '#f8f9fa'">
+                                                <div class="card-header">
+                                                    @note.NoteTitle
+                                                </div>
+                                                <div class="card-body">
+                                                    <blockquote class="blockquote mb-0">
+                                                        <p>@note.Note</p>
+                                                        <footer class="blockquote-footer">@note.NoteDate.ToLongDateString() @note.NoteDate.ToShortTimeString()</footer>
+                                                    </blockquote>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <button disabled="@(!notes.HasPrevious)" type="button" @onclick="GetPrevious" class="btn btn-primary w-100">Previous page</button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button disabled="@(!notes.HasNext)" type="button" @onclick="GetNext" class="btn btn-primary w-100">Next page</button>
+                                    </div>
+                                </div>
+                            }
+                            else if (notes.items.Count == 0)
+                            {
+                                <h4>No notes for this patient</h4>
+                            }
+                        }
+                        else
+                        {
+                            <h4>No notes to display</h4>
+                        }
+                    </div>
 
-                }
-                else
-                {
-                    <h4>No notes to display</h4>
-                }
+                </div>
+
             </div>
-        </div>
 
+        }
+        else
+        {
+            <SpinnerLoader />
+        }
     }
     else
     {
-        <SpinnerLoader/>
+        <h4 class="display-4">Page Not Found</h4>
     }
 </div>
 
 @code {
-    private string uuid = "";
-    public string UUID 
-    { 
-        get => uuid;
-        set => SetUUID(value);
-    }
+    [ParameterAttribute]
+    public string UUID { get; set; }
 
-    public List<PatientDetailsDTO> patients;
-    public List<string> notes;
+    private bool AllowView = true;
+
+    public string PatientUUID { get; set; }
+
+    int currentPage = 1;
+    int pageSize = 12;
+
+    public List<UserBasicDTO> patients;
+    public PaginatedResultDTO<NotesDTO> notes;
 
     protected override async Task OnInitializedAsync()
     {
-        patients = await Client.GetFromJsonAsync<List<PatientDetailsDTO>>("api/users/patients/all" + UUID);
-    }
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
 
-    private async void SetUUID(string value)
-    {
-        uuid = value;
-        await GetNotes();
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+
+        if (UUID.Equals(jti))
+        {
+            var result = await Client.GetFromJsonAsync<DoctorDetailsDTO>("api/users/doctors/" + UUID);
+            patients = result.Patients;
+        }
+        else
+        {
+            AllowView = false;
+        }
     }
 
     protected async Task GetNotes()
     {
-        Console.WriteLine(UUID);
+        notes = null;
+        notes = await Client.GetFromJsonAsync<PaginatedResultDTO<NotesDTO>>("api/notes/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + PatientUUID + "&doctor=" + UUID);
+    }
+
+    protected async Task GetNext()
+    {
+        currentPage += 1;
+        notes = null;
+        notes = await Client.GetFromJsonAsync<PaginatedResultDTO<NotesDTO>>("api/notes/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + PatientUUID + "&doctor=" + UUID);
+
+    }
+
+    protected async Task GetPrevious()
+    {
+        currentPage -= 1;
+        notes = null;
+        notes = await Client.GetFromJsonAsync<PaginatedResultDTO<NotesDTO>>("api/notes/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + PatientUUID + "&doctor=" + UUID);
+
     }
 }

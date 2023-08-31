@@ -1,8 +1,12 @@
-﻿@page "/prescriptions/{UUID}"
+﻿@page "/my_prescriptions/{UUID}"
+@using Blazored.LocalStorage;
 @using ClientWebApp.Components.Tables
 @using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject HttpClient Client
+@inject ILocalStorageService localStorage
 
 <div class="container text-center justify-content-center align-items-center mt-5">
     <h4 class="display-4 mb-5">Prescriptions</h4>
@@ -17,10 +21,15 @@
     }
     else
     {
-        <div class="row col-12 mb-3">
-            <div class="col-12">
-                <PrescriptionsSimpleTable prescriptions="prescriptions.items" />
-            </div>
+        <div class="row mb-3">
+            <AuthorizeView Roles="DOCTOR">
+                <Authorized>
+                    <a href="@("new_prescription/" + UUID)" class="btn btn-primary w-100">New prescription</a>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+        <div class="row mb-3">
+            <PrescriptionsTable prescriptions="prescriptions.items" />
         </div>
         <div class="row col-12 mb-3 justify-content-center">
             <div class="col-1">
@@ -45,40 +54,57 @@
 
     public PaginatedResultDTO<PrescriptionDTO> prescriptions;
 
+    private string Role;
+
     int currentPage = 1;
     int pageSize = 10;
 
     async Task GetFirst()
     {
         currentPage = 1;
-        prescriptions = null;
-        prescriptions = await Client.GetFromJsonAsync<PaginatedResultDTO<PrescriptionDTO>>("api/prescription/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+        await GetPrescriptions();
     }
 
     async Task GetLast()
     {
         currentPage = prescriptions.TotalPages;
-        prescriptions = null;
-        prescriptions = await Client.GetFromJsonAsync<PaginatedResultDTO<PrescriptionDTO>>("api/prescription/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+        await GetPrescriptions();
     }
 
     async Task GetPrevious()
     {
         currentPage -= 1;
-        prescriptions = null;
-        prescriptions = await Client.GetFromJsonAsync<PaginatedResultDTO<PrescriptionDTO>>("api/prescription/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+        await GetPrescriptions();
     }
 
     async Task GetNext()
     {
         currentPage += 1;
-        prescriptions = null;
-        prescriptions = await Client.GetFromJsonAsync<PaginatedResultDTO<PrescriptionDTO>>("api/prescription/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+        await GetPrescriptions();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Client.GetFromJsonAsync<PaginatedResultDTO<PrescriptionDTO>>("api/prescription/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
-        prescriptions = result;
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        Role = claims.Single(c => c.Type.Equals("role")).Value;
+
+        await GetPrescriptions();
+    }
+
+    private async Task GetPrescriptions()
+    {
+        prescriptions = null;
+        if (Role.Equals("PATIENT"))
+        {
+            prescriptions = await Client.GetFromJsonAsync<PaginatedResultDTO<PrescriptionDTO>>("api/prescription/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+
+        }
+        else
+        {
+            prescriptions = await Client.GetFromJsonAsync<PaginatedResultDTO<PrescriptionDTO>>("api/prescription/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + UUID);
+
+        }
     }
 }

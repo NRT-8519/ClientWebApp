@@ -1,0 +1,133 @@
+﻿@page "/my_patients/{UUID}"
+@using Blazored.LocalStorage;
+@using ClientWebApp.Components.Tables
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+
+@inject HttpClient Client
+@inject ILocalStorageService localStorage
+
+<PageTitle>My Patients</PageTitle>
+
+<div class="container text-center justify-content-center align-items-center">
+    <h1 class="display-4">Patients</h1>
+
+    @if (AllowView)
+    {
+        @if (patients == null || patients.items.Count == 0)
+        {
+            <SpinnerLoader />
+        }
+        else
+        {
+            <div class="text-center justify-content-center">
+                <div class="row col-12 mb-3">
+                    <button @onclick="UpdateList" class="btn btn-secondary">View patients without a doctor</button>
+                </div>
+                <div class="row col-12 mb-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control" @bind-value="@searchString" placeholder="Type in a keyword..." aria-label="Type in a keyword..." aria-describedby="search-button">
+                        <button class="btn btn-outline-primary" @onclick="InvokeSearch" type="button" id="search-button">Search</button>
+                    </div>
+                </div>
+                <div class="row col-12 mb-3">
+                    <div class="col-12">
+                        <UserTable Entity="patients.items" Link="patient_details" />
+                    </div>
+                </div>
+                <div class="row col-12 mb-3 justify-content-center">
+                    <div class="col-1">
+                        <button disabled="@(!patients.HasPrevious)" type="button" @onclick="GetFirst" class="btn btn-primary w-100"><div class="bi bi-chevron-double-left"></div></button>
+                    </div>
+                    <div class="col-1">
+                        <button disabled="@(!patients.HasPrevious)" type="button" @onclick="GetPrevious" class="btn btn-primary w-100"><div class="bi bi-chevron-left"></div></button>
+                    </div>
+                    <div class="col-1">
+                        <button disabled="@(!patients.HasNext)" type="button" @onclick="GetNext" class="btn btn-primary w-100"><div class="bi bi-chevron-right"></div></button>
+                    </div>
+                    <div class="col-1">
+                        <button disabled="@(!patients.HasNext)" type="button" @onclick="GetLast" class="btn btn-primary w-100"><div class="bi bi-chevron-double-right"></div></button>
+                    </div>
+                </div>
+            </div>
+
+        }
+    }
+    else
+    {
+        <h4 class="display-4">Page Not Found</h4>
+    }
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UUID {  get; set; }
+
+    private bool AllowView = true;
+
+    private PaginatedResultDTO<UserBasicDTO>? patients;
+
+    int currentPage = 1;
+    int pageSize = 10;
+    string searchString = "";
+    string currentFilter = "";
+
+    private async Task UpdateList()
+    {
+        patients = null;
+        patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + Guid.Empty + "&searchString=" + searchString);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+
+        if (UUID.Equals(jti))
+        {
+            patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + UUID);
+        }
+        else
+        {
+            AllowView = false;
+        }
+    }
+
+    async Task InvokeSearch()
+    {
+        currentPage = 1;
+        currentFilter = searchString;
+        patients = null;
+        patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + UUID + "&searchString=" + searchString);
+    }
+
+    async Task GetFirst()
+    {
+        currentPage = 1;
+        patients = null;
+        patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + UUID + "&currentFilter=" + currentFilter);
+    }
+
+    async Task GetLast()
+    {
+        currentPage = patients.TotalPages;
+        patients = null;
+        patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + UUID + "&currentFilter=" + currentFilter);
+    }
+
+    async Task GetPrevious()
+    {
+        currentPage -= 1;
+        patients = null;
+        patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + UUID + "&currentFilter=" + currentFilter);
+    }
+
+    async Task GetNext()
+    {
+        currentPage += 1;
+        patients = null;
+        patients = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/patients/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + UUID + "&currentFilter=" + currentFilter);
+    }
+}

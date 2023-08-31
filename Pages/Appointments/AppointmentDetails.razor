@@ -1,0 +1,107 @@
+﻿@page "/appointment_details/{UUID}/{ID}"
+@using ClientWebApp.DTOs;
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject HttpClient Client
+
+<div class="container text-center justify-content-center align-items-center mt-5">
+    @if (AllowView)
+    {
+        <h4 class="display-4 mb-5">Appointment details</h4>
+
+        @if (schedule == null || patient == null || doctor == null)
+        {
+            <SpinnerLoader />
+        }
+        else
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card card-body bg-light">
+                        <h4 class="card-title">Event</h4>
+                        <h5 class="card-text">@schedule.Event</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card card-body bg-light">
+                        <h4 class="card-title">Date and time of the appointment</h4>
+                        <h5 class="card-text">@schedule.ScheduledDateTime.ToLongDateString() at @schedule.ScheduledDateTime.ToShortTimeString()</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-5 col-sm-12">
+                    <div class="card card-body bg-light">
+                        <h4 class="card-title">Doctor</h4>
+                        <h5 class="card-text">Dr. @doctor.FirstName @doctor.LastName</h5>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12">
+                    <div class="card card-body bg-light">
+                        <h4 class="card-title">Patient</h4>
+                        <h5 class="card-text">@patient.FirstName @patient.LastName</h5>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <div class="card card-body bg-light">
+                        <h4 class="card-title">Doctor's office</h4>
+                        <h5 class="card-text">@doctor.RoomNumber</h5>
+                    </div>
+                </div>
+            </div>
+
+            <AuthorizeView Roles="DOCTOR">
+                <Authorized>
+                    <div class="row mb-4">
+                        <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                            <a href="@("edit_appointment/" + UUID + "/" + ID)" type="submit" class="btn btn-lg btn-warning w-100">
+                                Edit appointment
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                            <a href="@("appointments/" + UUID)" class="btn btn-lg btn-secondary w-100">
+                                Back
+                            </a>
+                        </div>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="row mb-4">
+                        <div class="col-12 mb-md-0 mb-sm-3">
+                            <a href="@("appointments/" + UUID)" class="btn btn-lg btn-secondary w-100">
+                                Back
+                            </a>
+                        </div>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+        }
+    }
+    else
+    {
+        <h1 class="display-4">Page not found</h1>
+    }
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    [ParameterAttribute]
+    public string ID { get; set; }
+
+    private ScheduleDTO schedule;
+    private PatientDetailsDTO patient;
+    private DoctorDetailsDTO doctor;
+
+    private bool AllowView = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        schedule = await Client.GetFromJsonAsync<ScheduleDTO>("api/schedule/" + ID);
+        patient = await Client.GetFromJsonAsync<PatientDetailsDTO>("api/users/patients/" + schedule.PatientUUID);
+        doctor = await Client.GetFromJsonAsync<DoctorDetailsDTO>("api/users/doctors/" + schedule.DoctorUUID);
+    }
+}

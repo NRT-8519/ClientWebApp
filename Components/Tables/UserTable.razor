@@ -1,28 +1,49 @@
 ﻿@using ClientWebApp.DTOs;
+@using Microsoft.AspNetCore.Components.Authorization
 <div class="card card-body bg-light table-responsive">
     <table class="table table-hover col-12 align-middle">
         <thead>
             <tr>
                 <th scope="col" class="col-1">#</th>
                 <th scope="col" class="col-2">Name</th>
-                <th scope="col" class="col-2">Username</th>
                 <th scope="col" class="col-2">Email</th>
-                <th scope="col" class="col-3">UUID</th>
+                <AuthorizeView Roles="ADMINISTRATOR">
+                    <Authorized>
+                        <th scope="col" class="col-2">Username</th>
+                        <th scope="col" class="col-3">UUID</th>
+                    </Authorized>
+                </AuthorizeView>
                 <th scope="col" class="col-1"></th>
             </tr>
         </thead>
         <tbody>
-            @for (int i = 0; i < Entity.Count; i++)
-            {
-                <tr>
-                    <td>@(i + 1)</td>
-                    <td>@(Entity[i].FirstName + " " + Entity[i].MiddleName.First() + ". " + Entity[i].LastName)</td>
-                    <td>@(Entity[i].Username)</td>
-                    <td>@(Entity[i].Email)</td>
-                    <td>@(Entity[i].UUID.ToString())</td>
-                    <td><a href="@Link/@Entity[i].UUID" class="btn btn-sm btn-outline-success w-100">Details</a></td>
-                </tr>
-            }
+            <AuthorizeView Roles="ADMINISTRATOR">
+                <Authorized>
+                    @for (int i = 0; i < Entity.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@(Entity[i].FirstName + " " + Entity[i].MiddleName.First() + ". " + Entity[i].LastName)</td>
+                            <td>@(Entity[i].Email)</td>
+                            <td>@(Entity[i].Username)</td>
+                            <td>@(Entity[i].UUID.ToString())</td>
+                            <td><a href="@Link/@Entity[i].UUID" class="btn btn-sm btn-outline-success w-100">Details</a></td>
+                        </tr>
+                    }
+                </Authorized>
+                <NotAuthorized>
+                    @for (int i = 0; i < Entity.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@(Entity[i].FirstName + " " + Entity[i].MiddleName.First() + ". " + Entity[i].LastName)</td>
+                            <td>@(Entity[i].Email)</td>
+                            <td><a href="@Link/@Entity[i].UUID" class="btn btn-sm btn-outline-success w-100">Details</a></td>
+                        </tr>
+                    }
+                </NotAuthorized>
+            </AuthorizeView>
+            
         </tbody>
     </table>
 </div>

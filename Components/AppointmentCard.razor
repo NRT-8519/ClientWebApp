@@ -1,0 +1,40 @@
+﻿@using ClientWebApp.DTOs;
+<div class="card card-body bg-light">
+    <h3 class="card-title">
+        <span class="oi oi-calendar" style="color: rebeccapurple"></span> Appointments for today
+    </h3>
+    @if (Appointments == null || Appointments.Count == 0)
+    {
+        <div class="card card-body bg-light mb-1 text-center">
+            <h5 class="card-title">
+                No appointments for today.
+            </h5>
+        </div>
+    }
+    else
+    {
+        @foreach (var a in Appointments)
+        {
+            <a href="@("appointment_details/" + UUID + "/" + a.Id)" class="card card-body mb-1 link-dark nav-link" onmouseover="this.style.backgroundColor='@HoverColor'" onmouseout="this.style.backgroundColor='@DefaultColor'" style="background-color: '@DefaultColor'">
+                <h5 class="card-title">
+                    @a.Event
+                </h5>
+                <h6 class="card-text">@a.ScheduledDateTime.ToShortTimeString()</h6>
+            </a>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<ScheduleDTO> Appointments { get; set; } = new();
+
+    [Parameter]
+    public string UUID { get; set; } = "NOUUID";
+
+    [Parameter]
+    public string DefaultColor { get; set; } = "#f8f9fa";
+
+    [Parameter]
+    public string HoverColor { get; set; } = "#d8dbdf";
+}

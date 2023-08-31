@@ -81,7 +81,18 @@
                         @if (Doctor != null)
                         {
                             <div class="col-12">
-
+                                <div class="row mb-4">
+                                    <div class="col-md-12 col-sm-12">
+                                        @if (Appointments != null)
+                                        {
+                                            <AppointmentCard UUID="@UUID" Appointments="Appointments.items" />
+                                        }
+                                        else
+                                        {
+                                            <SpinnerLoader />
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         }
                         else
@@ -102,41 +113,26 @@
                                         </LinkCard>
                                     </div>
                                     <div class="col-md-4 col-sm-12">
-                                        <LinkCard Link="@("prescriptions/" + UUID)" CardTitle="My Prescriptions" CardText="Number of prescriptions">
+                                        <LinkCard Link="@("prescriptions/" + UUID)" CardTitle="My Prescriptions" CardText="@Prescriptions.ToString()">
                                             <span class="oi oi-script" style="color: rebeccapurple"></span>
                                         </LinkCard>
                                     </div>
                                     <div class="col-md-4 col-sm-12">
-                                        <LinkCard Link="@("my_requests/" + UUID)" CardTitle="My requests" CardText="Number of requests">
+                                        <LinkCard Link="@("my_requests/" + UUID)" CardTitle="My requests" CardText="@Requests.ToString()">
                                             <span class="oi oi-bell" style="color: rebeccapurple"></span>
                                         </LinkCard>
                                     </div>
                                 </div>
                                 <div class="row mb-4">
                                     <div class="col-md-12 col-sm-12">
-                                        <div class="card card-body bg-light">
-                                            <h3 class="card-title">
-                                                <span class="oi oi-calendar" style="color: rebeccapurple"></span> Appointments for today
-                                            </h3>
-                                            <div class="card card-body bg-light mb-1">
-                                                <h5 class="card-title">
-                                                    Appointment title
-                                                </h5>
-                                                <h6 class="card-text">Appointment text</h6>
-                                            </div>
-                                            <div class="card card-body bg-light mb-1">
-                                                <h5 class="card-title">
-                                                    Appointment title
-                                                </h5>
-                                                <h6 class="card-text">Appointment text</h6>
-                                            </div>
-                                            <div class="card card-body bg-light mb-1">
-                                                <h5 class="card-title">
-                                                    Appointment title
-                                                </h5>
-                                                <h6 class="card-text">Appointment text</h6>
-                                            </div>
-                                        </div>
+                                        @if (Appointments != null)
+                                        {
+                                            <AppointmentCard UUID="@UUID" Appointments="Appointments.items" />
+                                        }
+                                        else
+                                        {
+                                            <SpinnerLoader />
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -156,7 +152,12 @@
     protected string user;
 
     protected PatientDetailsDTO Patient;
+    protected int Prescriptions = -1;
+    protected int Requests = -1;
+
     protected DoctorDetailsDTO Doctor;
+
+    protected PaginatedResultDTO<ScheduleDTO> Appointments;
 
     protected int HospitalStaff = -1;
     protected int Patients = -1;
@@ -197,15 +198,20 @@
             }
             else if (role.Equals("DOCTOR"))
             {
-
+                Doctor = await Client.GetFromJsonAsync<DoctorDetailsDTO>("api/users/doctors/" + UUID);
+                Requests = await GetCount("api/request/count/" + UUID + "/AWAITING");
+                Appointments = await Client.GetFromJsonAsync<PaginatedResultDTO<ScheduleDTO>>("api/schedule/all?pageNumber=1&pageSize=25&doctor=" + UUID + "&date=" + DateOnly.FromDateTime(DateTime.Now).ToString());
             }
             else if (role.Equals("PATIENT"))
             {
                 Patient = await Client.GetFromJsonAsync<PatientDetailsDTO>("api/users/patients/" + UUID);
+                Prescriptions = await GetCount("api/prescription/count?UUID=" + UUID);
+                Requests = await GetCount("api/request/count/" + UUID + "/AWAITING");
+                Appointments = await Client.GetFromJsonAsync<PaginatedResultDTO<ScheduleDTO>>("api/schedule/all?pageNumber=1&pageSize=25&patient=" + UUID + "&date=" + DateOnly.FromDateTime(DateTime.Now).ToString());
             }
             else
             {
-                Doctor = await Client.GetFromJsonAsync<DoctorDetailsDTO>("api/users/doctors/" + UUID);
+                
             }
         }
     }
