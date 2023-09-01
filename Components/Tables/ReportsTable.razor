@@ -1,0 +1,65 @@
+﻿@using ClientWebApp.DTOs;
+
+@inject HttpClient Client
+
+<div class="card card-body bg-light table-responsive">
+    @if (Reporters.Count == 0)
+    {
+        <SpinnerLoader/>
+    }
+    else
+    {
+        <table class="table table-hover col-12 align-middle">
+            <thead>
+                <tr>
+                    <th scope="col" class="col-1">#</th>
+                    <th scope="col" class="col-2">Title</th>
+                    <th scope="col" class="col-2">Reported by</th>
+                    <th scope="col" class="col-2">Date</th>
+                    <th scope="col" class="col-1"></th>
+                    <th scope="col" class="col-1"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Reports.Count; i++)
+                {
+                    <tr>
+                        <td>@(i + 1 + (PageNumber == 1 ? 0 : PageSize * (PageNumber - 1)))</td>
+                        <td>@(Reports[i].Title)</td>
+                        <td>@(Reporters[i])</td>
+                        <td>@(Reports[i].Date)</td>
+                        <td><a href="@DetailsLink/@Reports[i].UUID" class="btn btn-sm btn-outline-success w-100">Details</a></td>
+                        <td><a href="@RemoveLink/@Reports[i].UUID" class="btn btn-sm btn-outline-danger w-100">Delete</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string DetailsLink { get; set; }
+
+    [Parameter]
+    public string RemoveLink { get; set; }
+
+    [Parameter]
+    public List<ReportDTO> Reports { get; set; }
+    private List<string> Reporters { get; set; } = new();
+
+    [Parameter]
+    public int PageNumber { get; set; }
+
+    [Parameter]
+    public int PageSize { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        foreach (var report in Reports)
+        {
+            var user = await Client.GetFromJsonAsync<UserDetailsDTO>("api/users/" + report.ReportedBy);
+            Reporters.Add($"{user.FirstName} {user.LastName}");
+        }
+    }
+}

@@ -1,0 +1,100 @@
+﻿@page "/reports"
+@using Blazored.LocalStorage;
+@using ClientWebApp.Components.Tables
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject HttpClient Client
+@inject ILocalStorageService localStorage
+
+<AuthorizeView Roles="ADMINISTRATOR">
+    <Authorized>
+        @if (reports == null)
+        {
+            <SpinnerLoader/>
+        }
+        else
+        {
+            @if (reports.items.Count > 0)
+            {
+                <div class="container col-12 align-items-center justify-content-center mt-5">
+                    <h4 class="display-5 mb-5">Reports</h4>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <ReportsTable DetailsLink="report_details" RemoveLink="remove_report" Reports="reports.items" />
+                        </div>
+                    </div>
+                    <div class="row col-12 mb-3 justify-content-center">
+                        <div class="col-1">
+                            <button disabled="@(!reports.HasPrevious)" type="button" @onclick="GetFirst" class="btn btn-primary w-100"><div class="bi bi-chevron-double-left"></div></button>
+                        </div>
+                        <div class="col-1">
+                            <button disabled="@(!reports.HasPrevious)" type="button" @onclick="GetPrevious" class="btn btn-primary w-100"><div class="bi bi-chevron-left"></div></button>
+                        </div>
+                        <div class="col-1">
+                            <button disabled="@(!reports.HasNext)" type="button" @onclick="GetNext" class="btn btn-primary w-100"><div class="bi bi-chevron-right"></div></button>
+                        </div>
+                        <div class="col-1">
+                            <button disabled="@(!reports.HasNext)" type="button" @onclick="GetLast" class="btn btn-primary w-100"><div class="bi bi-chevron-double-right"></div></button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <h4 class="display-4">No reports</h4>
+            }
+        }
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    public PaginatedResultDTO<ReportDTO> reports;
+
+    private string Role;
+
+    int currentPage = 1;
+    int pageSize = 10;
+
+    async Task GetFirst()
+    {
+        currentPage = 1;
+        await GetReports();
+    }
+
+    async Task GetLast()
+    {
+        currentPage = reports.TotalPages;
+        await GetReports();
+    }
+
+    async Task GetPrevious()
+    {
+        currentPage -= 1;
+        await GetReports();
+    }
+
+    async Task GetNext()
+    {
+        currentPage += 1;
+        await GetReports();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        Role = claims.Single(c => c.Type.Equals("role")).Value;
+
+        await GetReports();
+    }
+
+    private async Task GetReports()
+    {
+        reports = null;
+        reports = await Client.GetFromJsonAsync<PaginatedResultDTO<ReportDTO>>("api/report/all?pageNumber=" + currentPage + "&pageSize=" + pageSize);
+    }
+}

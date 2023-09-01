@@ -16,7 +16,30 @@
                 <tr>
                     <td>@(i + 1)</td>
                     <td>@(Requests[i].Title)</td>
-                    <td>@(Requests[i].Type)</td>
+                    @if (Requests[i].Type.Equals("APPOINTMENT"))
+                    {
+                        <td>
+                            New appointment
+                        </td>
+                    }
+                    else if (Requests[i].Type.Equals("APPOINTMENT_MOVE"))
+                    {
+                        <td>
+                            Reschedule an appointment
+                        </td>
+                    }
+                    else if (Requests[i].Type.Equals("APPOINTMENT_CANCEL"))
+                    {
+                        <td>
+                            Cancel an appointment
+                        </td>
+                    }
+                    else if (Requests[i].Type.Equals("PRESCRIPTION_EXTENSION"))
+                    {
+                        <td>
+                            Extend a prescription
+                        </td>
+                    }
                     <td>@(Requests[i].Status)</td>
                     <td><a href="@Link/@Requests[i].UUID" class="btn btn-sm btn-outline-success w-100">Details</a></td>
                 </tr>

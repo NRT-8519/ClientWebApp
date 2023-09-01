@@ -94,12 +94,17 @@
                     </div>
                 </div>
                 <div class="row mb-4">
-                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
                         <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-success w-100">
                             Commit changes
                         </button>
                     </div>
-                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                    <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
+                        <button disabled="@DisableInput" @onclick="CancelAppointment" class="btn btn-lg btn-danger w-100">
+                            Cancel appointment
+                        </button>
+                    </div>
+                    <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
                         <a disabled="@DisableInput" href="@("appointments/" + DoctorUUID)" class="btn btn-lg btn-secondary w-100">
                             Discard
                         </a>
@@ -169,6 +174,17 @@
         appointment.ScheduledDateTime = dt;
 
         await Client.PutAsJsonAsync<ScheduleDTO>("api/schedule/edit", appointment);
+
+        await Task.Delay(1000);
+
+        NavigationManager.NavigateTo("appointments/" + DoctorUUID);
+    }
+
+    protected async Task CancelAppointment()
+    {
+        DisableInput = true;
+
+        await Client.DeleteAsync("api/schedule/remove/" + ID);
 
         await Task.Delay(1000);
 

@@ -1,9 +1,12 @@
 ﻿@page "/my_requests/{UUID}"
+@using Blazored.LocalStorage;
 @using ClientWebApp.Components.Tables
 @using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject HttpClient Client
-
+@inject ILocalStorageService localStorage
 <PageTitle>My Requests</PageTitle>
 
 <div class="container text-center justify-content-center align-items-center mt-5">
@@ -16,19 +19,27 @@
     else if (requests.items.Count == 0)
     {
         <h4 class="mb-4">No requests</h4>
-        <div class="row col-12 mb-3">
-            <div class="col-12">
-                <a href="new_request" class="btn btn-primary w-100">Create a new request</a>
-            </div>
-        </div>
+        <AuthorizeView Roles="PATIENT">
+            <Authorized>
+                <div class="row col-12 mb-3">
+                    <div class="col-12">
+                        <a href="new_request" class="btn btn-primary w-100">Create a new request</a>
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     }
     else
     {
-        <div class="row col-12 mb-3">
-            <div class="col-12">
-                <a href="new_request" class="btn btn-primary w-100">Create a new request</a>
-            </div>
-        </div>
+        <AuthorizeView Roles="PATIENT">
+            <Authorized>
+                <div class="row col-12 mb-3">
+                    <div class="col-12">
+                        <a href="new_request" class="btn btn-primary w-100">Create a new request</a>
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
         <div class="row col-12 mb-3">
             <div class="col-12">
                 <RequestsTable Requests="requests.items" Link="@("request_details/" + UUID)" />
@@ -57,40 +68,51 @@
 
     public PaginatedResultDTO<RequestDTO> requests;
 
+    private string Role;
+
     int currentPage = 1;
     int pageSize = 10;
 
     async Task GetFirst()
     {
         currentPage = 1;
-        requests = null;
-        requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+        await GetRequests();
     }
 
     async Task GetLast()
     {
         currentPage = requests.TotalPages;
-        requests = null;
-        requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+        await GetRequests();
     }
 
     async Task GetPrevious()
     {
         currentPage -= 1;
-        requests = null;
-        requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+        await GetRequests();
     }
 
     async Task GetNext()
     {
         currentPage += 1;
-        requests = null;
-        requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
+        await GetRequests();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
-        requests = result;
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        Role = claims.Single(c => c.Type.Equals("role")).Value;
+
+        await GetRequests();
+    }
+
+    private async Task GetRequests()
+    {
+        requests = null;
+        if (Role.Equals("DOCTOR"))
+            requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&doctor=" + UUID);
+        else
+            requests = await Client.GetFromJsonAsync<PaginatedResultDTO<RequestDTO>>("api/request/all?pageNumber=" + currentPage + "&pageSize=" + pageSize + "&patient=" + UUID);
     }
 }

@@ -1,0 +1,35 @@
+﻿@page "/remove_report/{UUID}"
+@using Blazored.LocalStorage;
+@using ClientWebApp.Features;
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
+
+<AuthorizeView>
+    <NotAuthorized>
+        <h4 class="display-4">Page Note Found</h4>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+        var role = claims.Single(c => c.Type.Equals("role")).Value;
+
+        if(role.Equals("ADMINISTRATOR"))
+        {
+            await Client.DeleteAsync("api/report/remove/" + UUID);
+
+            NavigationManager.NavigateTo("/reports");
+        }
+    }
+}

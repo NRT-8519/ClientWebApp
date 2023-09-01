@@ -1,0 +1,154 @@
+﻿@page "/edit_request/{DoctorUUID}/{RequestUUID}"
+
+@using Blazored.LocalStorage;
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
+
+@if (AllowView)
+{
+    <AuthorizeView Roles="DOCTOR" Context="DoctorView">
+    <Authorized>
+        <div class="container text-center justify-content-center align-items-center mt-5">
+            <h4 class="display-4 mb-5">Editing request</h4>
+
+            @if (request == null)
+            {
+                <SpinnerLoader/>
+            }
+            else
+            {
+                <EditForm Model="request" OnValidSubmit="Execute">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light">
+                            <h4 class="card-title">Title</h4>
+                            <div class="form-floating">
+                                <InputText disabled class="form-control" @bind-Value="request.Title" id="title" />
+                                <label for="title">Title</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light">
+                            <h4 class="card-title">Request type</h4>
+                            <div class="form-floating">
+                                <InputSelect disabled class="form-select" @bind-Value="request.Type" id="type">
+                                    <option class="" disabled value="">Select a type...</option>
+                                    <option value="APPOINTMENT">New appointment</option>
+                                    <option value="APPOINTMENT_MOVE">Reschedule an appointment</option>
+                                    <option value="APPOINTMENT_CANCEL">Cancel an appointment</option>
+                                    <option value="PRESCRIPTION_EXTENSION">Extend a prescription</option>
+                                </InputSelect>
+                                <label for="type">Type</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light">
+                            <h4 class="card-title">Approval</h4>
+                            <InputRadioGroup disabled="@DisableInput" Name="approval" @bind-Value="@request.Status">
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-12">
+                                        <InputRadio disabled="@DisableInput" Name="approval" class="btn-check" Value="@("APPROVED")" id="approved" />
+                                        <label class="btn btn-outline-success w-100" for="approved"><span class="oi oi-check" style="font-size: 3rem"></span></label>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <InputRadio disabled="@DisableInput" Name="approval" class="btn-check" Value="@("DENIED")" id="denied" />
+                                                <label class="btn btn-outline-danger w-100" for="denied"><span class="oi oi-x" style="font-size: 3rem"></span></label>
+                                    </div>
+                                </div>
+                            </InputRadioGroup>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light h-100">
+                            <h4 class="card-title">Reason</h4>
+                            <div class="form-floating">
+                                <InputTextArea class="form-control h-100" rows="4" @bind-Value="request.Reason" id="reason"></InputTextArea>
+                                <label for="description">Reason</label>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card card-body bg-light h-100">
+                            <h4 class="card-title">Description</h4>
+                            <div class="form-floating">
+                                <InputTextArea disabled class="form-control h-100" rows="4" @bind-Value="request.Description" id="description"></InputTextArea>
+                                <label for="description">Description</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                        <button disabled="@DisableInput" type="submit" class="btn btn-lg btn-success w-100">
+                            Save
+                        </button>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                        <a disabled="@DisableInput" href="patients" class="btn btn-lg btn-secondary w-100">
+                            Discard
+                        </a>
+                    </div>
+                </div>
+            </EditForm>
+            }
+        </div>
+    </Authorized>
+    </AuthorizeView>
+}
+else
+{
+    <h4 class="display-4">Page Not Found</h4>
+}
+
+@code {
+    [ParameterAttribute]
+    public string DoctorUUID { get; set; }
+
+    [ParameterAttribute]
+    public string RequestUUID { get; set; }
+
+    private RequestDTO request;
+    private bool DisableInput = false;
+    private bool AllowView = true;
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+
+        if (DoctorUUID.Equals(jti))
+        {
+            request = await Client.GetFromJsonAsync<RequestDTO>("api/request/" + RequestUUID);
+        }
+        else
+        {
+            AllowView = false;
+        }
+
+    }
+
+    private async Task Execute()
+    {
+        DisableInput = true;
+
+        await Client.PutAsJsonAsync<RequestDTO>("api/request/edit", request);
+
+        NavigationManager.NavigateTo("/my_requests/" + DoctorUUID);
+    }
+}

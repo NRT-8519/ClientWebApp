@@ -1,95 +1,133 @@
 ﻿@page "/request_details/{UserUUID}/{RequestUUID}"
 @using ClientWebApp.DTOs;
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject HttpClient Client
 
-<div class="container text-center justify-content-center align-items-center mt-5">
-    <h4 class="display-4 mb-5">Request details</h4>
+<AuthorizeView Roles="DOCTOR,PATIENT">
+    <Authorized>
+        <div class="container text-center justify-content-center align-items-center mt-5">
+            <h4 class="display-4 mb-5">Request details</h4>
 
-    @if (request == null)
-    {
-        <SpinnerLoader/>
-    }
-    else
-    {
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-body bg-light justify-content-center align-items-center">
-                    <h2 class="card-title">
-                        Title: @request.Title
-                    </h2>
-                    <div class="row col-12 mb-4">
-                        <div class="col-md-6 col-sm-12">
-                            <div class="card card-body ">
-                                <h4>Doctor</h4>
-                                <h5 class="card-text">
-                                    @request.Doctor
-                                </h5>
+            @if (request == null)
+            {
+                <SpinnerLoader />
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-body bg-light justify-content-center align-items-center">
+                            <h2 class="card-title">
+                                Title: @request.Title
+                            </h2>
+                            <div class="row col-12 mb-4">
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="card card-body ">
+                                        <h4>Doctor</h4>
+                                        <h5 class="card-text">
+                                            @request.Doctor
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="card card-body ">
+                                        <h4>Patient</h4>
+                                        <h5 class="card-text">
+                                            @request.Patient
+                                        </h5>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-6 col-sm-12">
-                            <div class="card card-body ">
-                                <h4>Patient</h4>
-                                <h5 class="card-text">
-                                    @request.Patient
-                                </h5>
+                            <div class="row col-12 mb-4">
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="card card-body ">
+                                        <h4>Type</h4>
+                                        <h5 class="card-text">
+                                            @if (request.Type.Equals("APPOINTMENT"))
+                                            {
+                                                @("New appointment")
+                                            }
+                                            else if (request.Type.Equals("APPOINTMENT_MOVE"))
+                                            {
+                                                @("Reschedule an appointment")
+                                            }
+                                            else if (request.Type.Equals("APPOINTMENT_CANCEL"))
+                                            {
+                                                @("Cancel an appointment")
+                                            }
+                                            else if (request.Type.Equals("PRESCRIPTION_EXTENSION"))
+                                            {
+                                                @("Extend a prescription")
+                                            }
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="card card-body ">
+                                        <h4>Status</h4>
+                                        <h5 class="card-text @(request.Status.Equals("AWAITING") ? "text-warning" : request.Status.Equals("APPROVED") ? "text-success" : request.Status.Equals("DENIED") ? "text-danger" : "")">
+                                            @request.Status
+                                        </h5>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row col-12 mb-4">
-                        <div class="col-md-6 col-sm-12">
-                            <div class="card card-body ">
-                                <h4>Type</h4>
-                                <h5 class="card-text">
-                                    @request.Type
-                                </h5>
+                            <div class="row col-12 mb-4">
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="card card-body ">
+                                        <h4 class="card-title">
+                                            Description
+                                        </h4>
+                                        <p class="card-text">
+                                            @request.Description
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-6 col-sm-12">
-                            <div class="card card-body ">
-                                <h4>Status</h4>
-                                <h5 class="card-text @(request.Status.Equals("AWAITING") ? "text-warning" : request.Status.Equals("APPROVED") ? "text-success" : request.Status.Equals("DENIED") ? "text-danger" : "")">
-                                    @request.Status
-                                </h5>
+                            <div class="row col-12 mb-4">
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="card card-body ">
+                                        <h4 class="card-title">
+                                            Status reason
+                                        </h4>
+                                        <p class="card-text">
+                                            @(request.Reason.Equals("") ? "Not yet available" : request.Reason)
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row col-12 mb-4">
-                        <div class="col-md-12 col-sm-12">
-                            <div class="card card-body ">
-                                <h4 class="card-title">
-                                    Description
-                                </h4>
-                                <p class="card-text">
-                                    @request.Description
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row col-12 mb-4">
-                        <div class="col-md-12 col-sm-12">
-                            <div class="card card-body ">
-                                <h4 class="card-title">
-                                    Status reason
-                                </h4>
-                                <p class="card-text">
-                                    @(request.Reason.Equals("") ? "Not yet available" : request.Reason)
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row col-12 mb-3">
-                        <div class="col-md-12 col-sm-12">
-                            <a href="@("my_requests/" + UserUUID)" class="btn btn-lg btn-secondary w-100">
-                                Go Back
-                            </a>
+                            <AuthorizeView Roles="DOCTOR" Context="DoctorView">
+                                <Authorized>
+                                    <div class="row col-12 mb-3">
+                                        <div class="col-md-6 col-sm-12">
+                                            <a href="@("edit_request/" + UserUUID + "/" + RequestUUID)" class="btn btn-lg btn-warning w-100">
+                                                Update
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6 col-sm-12">
+                                            <a href="@("my_requests/" + UserUUID)" class="btn btn-lg btn-secondary w-100">
+                                                Back
+                                            </a>
+                                        </div>
+                                    </div>
+                                </Authorized>
+                                <NotAuthorized>
+                                    <div class="row col-12 mb-3">
+                                        <div class="col-md-12 col-sm-12">
+                                            <a href="@("my_requests/" + UserUUID)" class="btn btn-lg btn-secondary w-100">
+                                                Go Back
+                                            </a>
+                                        </div>
+                                    </div>
+                                </NotAuthorized>
+                            </AuthorizeView>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
-    }
-</div>
+    </Authorized>
+</AuthorizeView>
 
 
 @code {
