@@ -1,8 +1,11 @@
 ﻿@page "/doctors"
+@using Blazored.LocalStorage;
 @using ClientWebApp.Components.Tables
 @using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
 
 @inject HttpClient Client
+@inject ILocalStorageService localStorage
 
 <PageTitle>Doctors - Admin</PageTitle>
 
@@ -60,6 +63,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
         doctors = await Client.GetFromJsonAsync<PaginatedResultDTO<UserBasicDTO>>("api/users/doctors/all/basic?pageNumber=" + currentPage + "&pageSize=" + pageSize);
     }
 

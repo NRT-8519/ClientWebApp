@@ -196,11 +196,6 @@
             {
                 if (role.Equals("ADMINISTRATOR"))
                 {
-                    foreach (Claim claim in claims)
-                    {
-                        Console.WriteLine(claim);
-                    }
-
                     HospitalStaff = await GetCount("api/users/doctors/count");
                     Patients = await GetCount("api/users/patients/count");
                     Administrators = await GetCount("api/users/administrators/count");

@@ -1,8 +1,11 @@
 ﻿@page "/issuers"
+@using Blazored.LocalStorage;
 @using ClientWebApp.Components.Tables
 @using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
 
 @inject HttpClient Client
+@inject ILocalStorageService localStorage
 
 <PageTitle>Issuers - Admin</PageTitle>
 
@@ -60,6 +63,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
         issuers = await Client.GetFromJsonAsync<PaginatedResultDTO<IssuerDTO>>("api/issuer/all?pageNumber=" + currentPage + "&pageSize=" + pageSize);
     }
 

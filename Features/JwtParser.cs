@@ -37,7 +37,6 @@ namespace ClientWebApp.Features
 
             if (role != null)
             {
-                Console.WriteLine(role.ToString());
                 claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
                 pairs.Remove(ClaimTypes.Role);
             }
