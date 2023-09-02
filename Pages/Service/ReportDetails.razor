@@ -1,0 +1,102 @@
+﻿@page "/report_details/{UserUUID}/{UUID}"
+
+@using Blazored.LocalStorage;
+@using ClientWebApp.DTOs;
+@using ClientWebApp.Features;
+@using System.Text.Json;
+@using System.Text;
+
+@inject HttpClient Client
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService localStorage
+
+<div class="d-flex flex-column col-12 align-items-center justify-content-center mt-5">
+    @if (AllowView)
+    {
+        @if (report == null || user == null)
+        {
+            <SpinnerLoader/>
+        }
+        else
+        {
+            <h3 class="display-4 mb-5">Report</h3>
+            <div class="container">
+                <div class="card card-body bg-light align-items-center justify-content-center">
+                    <div class="row col-12">
+                        <div class="card card-body bg-light text-center mb-4">
+                            <h4 class="card-title">Report title</h4>
+                            <div class="form-floating">
+                                <InputText readonly placeholder="Report title..." class="form-control" @bind-Value="report.Title" />
+                                <label>Title</label>
+                            </div>
+                        </div>
+                        <div class="card card-body bg-light text-center mb-4">
+                            <h4 class="card-title">Reported ny</h4>
+                            <div class="form-floating">
+                                <InputText readonly placeholder="Reported by" class="form-control" @bind-Value="ReportedBy" />
+                                <label>Reported by</label>
+                            </div>
+                        </div>
+                        <div class="card card-body bg-light text-center mb-4">
+                            <h4 class="card-title">Report description</h4>
+                            <div class="form-floating">
+                                <InputTextArea rows="15" readonly placeholder="Detailed report description..." class="form-control h-100" @bind-Value="report.Description"></InputTextArea>
+                                <label>Description</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row col-12">
+                        <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                            <a href="@("remove_report/" + UUID)" type="submit" class="btn btn-lg btn-danger w-100">
+                                Delete
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-sm-12 mb-md-0 mb-sm-3">
+                            <a href="reports" class="btn btn-lg btn-secondary w-100">
+                                Discard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <h4 class="display-4">Page Not Found</h4>
+    }
+</div>
+
+@code {
+    [ParameterAttribute]
+    public string UserUUID { get; set; }
+
+    [ParameterAttribute]
+    public string UUID { get; set; }
+
+    private ReportDTO report;
+    private UserDetailsDTO user;
+    private string ReportedBy = "";
+
+    private bool AllowView = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsStringAsync("token");
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+
+        var jti = claims.Single(c => c.Type.Equals("jti")).Value;
+
+        if (UserUUID.Equals(jti))
+        {
+            report = await Client.GetFromJsonAsync<ReportDTO>("api/report/" + UUID);
+            user = await Client.GetFromJsonAsync<UserDetailsDTO>("api/users/" + UserUUID);
+
+            ReportedBy = $"{user.FirstName} {user.LastName}";
+        }
+        else
+        {
+            AllowView = false;
+        }
+    }
+}

@@ -23,7 +23,7 @@
 
                     <div class="row mb-3">
                         <div class="col-12">
-                            <ReportsTable DetailsLink="report_details" RemoveLink="remove_report" Reports="reports.items" />
+                            <ReportsTable DetailsLink="@("report_details/" + UUID)" RemoveLink="remove_report" Reports="reports.items" />
                         </div>
                     </div>
                     <div class="row col-12 mb-3 justify-content-center">
@@ -53,7 +53,7 @@
 @code {
     public PaginatedResultDTO<ReportDTO> reports;
 
-    private string Role;
+    private string Role, UUID;
 
     int currentPage = 1;
     int pageSize = 10;
@@ -87,6 +87,7 @@
         var token = await localStorage.GetItemAsStringAsync("token");
         var claims = JwtParser.ParseClaimsFromJwt(token);
 
+        UUID = claims.Single(c => c.Type.Equals("jti")).Value;
         Role = claims.Single(c => c.Type.Equals("role")).Value;
 
         await GetReports();
