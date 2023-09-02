@@ -10,7 +10,7 @@
 
 <div class="d-flex flex-column content text-center justify-content-center align-items-center">
     <h1 class="display-4 mt-1">Editing patient</h1>
-    @if (patient == null) 
+    @if (patient == null || doctors == null) 
     {
         <SpinnerLoader/>
     }
@@ -69,14 +69,16 @@
                 <div class="col-md-12 col-sm-12">
                     <div class="card card-body bg-light h-100">
                         <h4>Assigned Doctor</h4>
-                        @if (patient.AssignedDoctor == null)
-                        {
-                            <p disabled class="card-text"><strong>Not assigned</strong></p>
-                        }
-                        else
-                        {
-                            <p><strong>@(patient.AssignedDoctor != null && patient.AssignedDoctor.UUID != Guid.Empty ? patient.AssignedDoctor.FirstName + " " + patient.AssignedDoctor.MiddleName.First() + ". " + patient.AssignedDoctor.LastName : "Not Assigned")</strong></p>
-                        }
+                        <div class="form-floating">
+                            <InputSelect class="form-select" @bind-Value="DoctorUUID" id="doctor">
+                                <option value="">Select a doctor...</option>
+                                @foreach (var doctor in doctors)
+                                {
+                                    <option value="@doctor.UUID">Dr. @doctor.FirstName @doctor.LastName</option>
+                                }
+                            </InputSelect>
+                            <label for="doctor">Doctor</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -130,13 +132,27 @@
     public string UUID { get; set; }
     public bool DisableInput = false;
     public PatientDetailsDTO? patient;
+    public List<DoctorDetailsDTO>? doctors;
+
+    public string DoctorUUID = "";
 
     public async Task Execute()
     {
         DisableInput = true;
-        string content = JsonSerializer.Serialize(patient);
-        StringContent bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
-        await Client.PutAsync("api/users/patients/edit", bodyContent);
+
+        if (!DoctorUUID.Equals(""))
+        {
+            if (patient.AssignedDoctor == null)
+            {
+                patient.AssignedDoctor = new UserBasicDTO() { UUID = Guid.Parse(DoctorUUID) };
+            }
+            else
+            {
+                patient.AssignedDoctor.UUID = Guid.Parse(DoctorUUID);
+            }
+        }
+
+        await Client.PutAsJsonAsync("api/users/patients/edit", patient);
 
         NavigationManager.NavigateTo("/patient_details/" + UUID);
     }
@@ -159,5 +175,11 @@
     protected override async Task OnInitializedAsync()
     {
         patient = await Client.GetFromJsonAsync<PatientDetailsDTO>("api/users/patients/" + UUID);
+        doctors = await Client.GetFromJsonAsync<List<DoctorDetailsDTO>>("api/users/doctors/all");
+
+        if (patient.AssignedDoctor != null)
+        {
+            DoctorUUID = patient.AssignedDoctor.UUID.ToString();
+        }
     }
 }
