@@ -91,7 +91,7 @@
                 </div>
                 <div class="col-md-6 col-sm-12">
                     <div class="card card-body bg-light h-100">
-                        <button disabled="@DisableInput" type="button" @onclick="ForceExpireAccount" class="btn btn-lg btn-danger w-100 h-100">
+                        <button disabled="@DisableInput || @doctor.IsExpired" type="button" @onclick="ForceExpireAccount" class="btn btn-lg btn-danger w-100 h-100">
                             Force password expiry
                         </button>
                     </div>
@@ -112,9 +112,18 @@
                     </button>
                 </div>
                 <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
-                    <button disabled="@DisableInput" type="button" @onclick="DisableAccount" class="btn btn-lg btn-danger w-100">
-                        Disable account
-                    </button>
+                    @if (doctor.IsDisabled)
+                    {
+                        <button disabled="@DisableInput" type="button" @onclick="EnableAccount" class="btn btn-lg btn-success w-100">
+                            Enable account
+                        </button>
+                    }
+                    else
+                    {
+                        <button disabled="@DisableInput" type="button" @onclick="DisableAccount" class="btn btn-lg btn-danger w-100">
+                            Disable account
+                        </button>
+                    }
                 </div>
                 <div class="col-md-4 col-sm-12 mb-md-0 mb-sm-3">
                     <a disabled="@DisableInput" href="patients" class="btn btn-lg btn-secondary w-100">
@@ -142,6 +151,13 @@
         await Client.PutAsync("api/users/doctors/edit", bodyContent);
 
         NavigationManager.NavigateTo("/doctor_details/" + UUID);
+    }
+
+    public async Task EnableAccount()
+    {
+        doctor.IsDisabled = false;
+
+        await Execute();
     }
 
     public async Task DisableAccount()
