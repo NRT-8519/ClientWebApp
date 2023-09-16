@@ -10,7 +10,7 @@ namespace ClientWebApp.DTOs
         public string AreaOfExpertise { get; set; }
 
         [Required]
-        [Range(100, 999, ErrorMessage = "Room number must be between 100 and 999")]
+        [Range(101, 999, ErrorMessage = "Room number must be between 101 and 999")]
         public int RoomNumber { get; set; }
         public List<UserBasicDTO> Patients { get; set; } = new();
     }

@@ -1,12 +1,9 @@
 ﻿using Blazored.LocalStorage;
 using ClientWebApp.Auth;
 using ClientWebApp.AuthProviders;
-using ClientWebApp.Features;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using System.Data;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
@@ -96,7 +93,6 @@ namespace ClientWebApp.Services
                         break;
                     }
 
-                    //await Task.Delay(60 * 1000);
                     await Task.Delay(10 * 1000);
                 }
             }

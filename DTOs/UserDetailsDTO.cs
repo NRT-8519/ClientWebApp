@@ -8,26 +8,26 @@ namespace ClientWebApp.DTOs
         public Guid UUID { get; set; }
 
         [Required(ErrorMessage = "First name is required!")]
-        [StringLength(30)]
+        [StringLength(30, MinimumLength = 2, ErrorMessage = "Must be between 2 and 3 characters!")]
         public string FirstName { get; set; }
 
         [Required(ErrorMessage = "Middle name is required!")]
-        [StringLength(30)]
+        [StringLength(30, ErrorMessage = "Must be between 2 and 3 characters!")]
         public string MiddleName { get; set; }
 
         [Required(ErrorMessage = "Last name is required!")]
-        [StringLength(30)]
+        [StringLength(30, ErrorMessage = "Must be between 2 and 3 characters!")]
         public string LastName { get; set; }
 
-        [StringLength(50)]
+        [StringLength(30, MinimumLength = 2, ErrorMessage = "Maximum length for a title is 30 characters!")]
         public string Title { get; set; }
 
         [Required(ErrorMessage = "Username is required!")]
-        [StringLength(30)]
+        [StringLength(30, MinimumLength = 6, ErrorMessage = "Username length is between 6 and 30 characters!")]
         public string Username { get; set; }
 
         [AllowNull]
-        [StringLength(45)]
+        [StringLength(45, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 45 characters!")]
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 
@@ -39,7 +39,7 @@ namespace ClientWebApp.DTOs
 
         [Required(ErrorMessage = "Phone number is required!")]
         [DataType(DataType.PhoneNumber)]
-        [Phone(ErrorMessage = "Invalid phone number format")]
+        [RegularExpression(@"\+[1-9][0-9]{2}[0-9]{8,9}$", ErrorMessage = "Invalid phone number format")]
         [StringLength(13)]
         public string PhoneNumber { get; set; }
 
@@ -53,7 +53,7 @@ namespace ClientWebApp.DTOs
         public char Gender { get; set; }
 
         [Required(ErrorMessage = "Social Security Number is required!")]
-        [StringLength(13, ErrorMessage = "Social Security Number must contain 13 numbers")]
+        [RegularExpression(@"[0-9]{13}", ErrorMessage = "SSN Contains 13 digits!")]
         public string SSN { get; set; }
 
         [DataType(DataType.DateTime)]
