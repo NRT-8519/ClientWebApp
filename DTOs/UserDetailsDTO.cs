@@ -34,12 +34,12 @@ namespace ClientWebApp.DTOs
         [Required(ErrorMessage = "Email address is required!")]
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "Invalid Email address")]
-        [StringLength(50)]
+        [StringLength(50, MinimumLength = 4, ErrorMessage = "Password must be between 4 and 50 characters!")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Phone number is required!")]
         [DataType(DataType.PhoneNumber)]
-        [RegularExpression(@"\+[1-9][0-9]{2}[0-9]{8,9}$", ErrorMessage = "Invalid phone number format")]
+        [RegularExpression(@"\+[1-9][0-9]{1,2}[0-9]{8,9}$", ErrorMessage = "Invalid phone number format")]
         [StringLength(13)]
         public string PhoneNumber { get; set; }
 

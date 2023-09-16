@@ -25,7 +25,7 @@ namespace ClientWebApp.DTOs
         [RegularExpression(@"^[0-9]{13}$", ErrorMessage = "Invalid EAN.\nEAN is 13 digits long")]
         public string EAN { get; set; }
 
-        [RegularExpression(@"(^[ABCDGHJLMNPRSV][0-1][0-9][A-Z]{2}[0-9]{2})?", ErrorMessage = "Invalid EAN.\nEAN is 13 digits long")]
+        [RegularExpression(@"(^[ABCDGHJLMNPRSV][0-1][0-9][A-Z]{2}[0-9]{2})?", ErrorMessage = "Invalid ATC.\ATC is 13 digits long")]
         public string ATC { get; set; }
 
         [Required(ErrorMessage = "Required")]
