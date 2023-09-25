@@ -74,7 +74,7 @@
                 </div>
                 <div class="col-md-6 col-sm-12">
                     <div class="card card-body bg-light h-100">
-                        <button disabled="@DisableInput || @administrator.IsExpired" type="button" @onclick="ForceExpireAccount" class="btn btn-lg btn-danger w-100 h-100">
+                        <button disabled="@(DisableInput || administrator.IsExpired)" type="button" @onclick="ForceExpireAccount" class="btn btn-lg btn-danger w-100 h-100">
                             Force password expiry
                         </button>
                     </div>

@@ -82,13 +82,6 @@
                                         Not yet assigned
                                     </strong>
                                 </p>
-                                <div class="row justify-content-center">
-                                    <div class="col-md-4 col-sm-12">
-                                        <button class="btn btn-sm btn-primary w-100">
-                                            View
-                                        </button>
-                                    </div>
-                                </div>
                             }
                             else
                             {
@@ -97,16 +90,6 @@
                                         @(patient.AssignedDoctor != null && patient.AssignedDoctor.UUID != Guid.Empty ? patient.AssignedDoctor.FirstName + " " + patient.AssignedDoctor.MiddleName.First() + ". " + patient.AssignedDoctor.LastName : "Not Assigned")
                                     </strong>
                                 </p>
-                                @if (patient.AssignedDoctor.UUID != Guid.Empty)
-                                {
-                                    <div class="row justify-content-center">
-                                        <div class="col-md-4 col-sm-12">
-                                            <a href="" class="btn btn-sm btn-primary w-100">
-                                                View
-                                            </a>
-                                        </div>
-                                    </div>
-                                }
                             }
                         </div>
                     </div>
